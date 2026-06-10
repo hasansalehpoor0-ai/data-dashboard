@@ -1,16 +1,18 @@
 @import url('https://cdn.jsdelivr.net/npm/vazirmatn@33.0.3/Vazirmatn-font-face.css');
 
-/* مخفی کردن اسکرول‌بار مرورگر اما حفظ قابلیت اسکرول */
+/* --- Reset & Base Styles --- */
 ::-webkit-scrollbar {
     width: 0px;
     background: transparent;
 }
+
 body {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
     background-color: #f6f8fb; 
     color: #3b4252; 
     overflow-x: hidden;
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
 }
 
 body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
@@ -21,37 +23,43 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     max-width: 1440px;
     margin: 0 auto;
     width: 100%;
+    padding: 10px;
 }
 
-/* استایل تب‌ها (Tabs) */
+/* --- Navigation Tabs (Mobile Optimized) --- */
 .custom-tabs {
     background: #fff;
-    padding: 10px;
+    padding: 8px;
     border-radius: 50px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
     border: 1px solid #edf2f9;
     display: inline-flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* جلوگیری از شکستن خط در موبایل */
+    overflow-x: auto; /* اسکرول افقی در موبایل */
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    margin-bottom: 15px;
+}
+
+.custom-tabs::-webkit-scrollbar {
+    display: none; /* مخفی کردن اسکرول‌بار تب‌ها */
 }
 
 .custom-tabs .nav-item {
-    margin: 0 5px;
+    margin: 0 2px;
+    flex: 0 0 auto;
 }
 
 .custom-tabs .nav-link {
     color: #5a5c69;
     border-radius: 50px;
-    padding: 10px 20px;
+    padding: 8px 16px;
     font-weight: bold;
     transition: all 0.3s ease;
     border: none;
     background: transparent;
-    font-size: 0.95rem;
-}
-
-.custom-tabs .nav-link:hover {
-    background: #f8f9fa;
-    color: #4e73df;
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 
 .custom-tabs .nav-link.active {
@@ -60,244 +68,150 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3);
 }
 
-/* کارت‌های آماری */
-.stat-card { 
-    border-radius: 16px; 
-    color: white; 
-    padding: 24px 20px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: 1px solid rgba(255,255,255,0.1);
-    position: relative;
-    overflow: hidden;
-}
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+/* --- Action Buttons Container --- */
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
+/* --- Buttons --- */
+.btn-upload, .btn-toggle-norm, .btn-export-json, .btn-light {
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border: none;
+    gap: 8px;
+}
+
+.btn-upload { background: #4e73df; color: white; }
+.btn-upload:hover { background: #2e59d9; color: white; transform: translateY(-2px); }
+
+.btn-toggle-norm { background: #f6c23e; color: #fff; display: none; }
+.btn-toggle-norm:hover { background: #dda20a; transform: translateY(-2px); }
+
+.btn-light { background-color: #fff; border: 1px solid #edf2f9; color: #3b4252; }
+
+/* --- Stats Cards --- */
+.stat-card { 
+    border-radius: 18px; 
+    color: white; 
+    padding: 20px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.1);
+    height: 100%;
+}
 .bg-blue { background: linear-gradient(135deg, #4e73df 0%, #36b9cc 100%); }
 .bg-green { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
 .bg-orange { background: linear-gradient(135deg, #f6c23e 0%, #e74a3b 100%); }
 
-/* کارت‌های نمودار */
+.stat-card h3 { font-weight: 800; font-size: 1.6rem; margin-bottom: 5px; }
+.stat-card p { opacity: 0.9; font-size: 0.85rem; margin-bottom: 0; }
+
+/* --- Chart Cards --- */
 .chart-card { 
     background: #ffffff; 
-    border-radius: 16px; 
+    border-radius: 20px; 
     padding: 20px; 
     box-shadow: 0 2px 12px rgba(0,0,0,0.03); 
     border: 1px solid #edf2f9; 
     height: 100%;
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-}
-.chart-wrapper {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-/* مخفی کردن اعداد رادار در پروفایل استعداد */
-#combinedFinalRadarChart .apexcharts-datalabel,
-#combinedFinalRadarChart .apexcharts-text.apexcharts-datalabel {
-    display: none !important;
-}
-
-/* دکمه‌ها */
-.btn-upload { 
-    background: #4e73df; 
-    color: white; 
-    border-radius: 8px; 
-    padding: 8px 20px; 
-    font-weight: 500;
-    transition: all 0.2s; 
-    border: none;
-}
-.btn-upload:hover { background: #2e59d9; color: white; transform: translateY(-2px); }
-
-.btn-toggle-norm { 
-    background: #f6c23e; 
-    color: #fff; 
-    border-radius: 8px; 
-    padding: 8px 20px; 
-    font-weight: 500;
-    border: none; 
-    display: none; 
-    transition: all 0.2s; 
-}
-.btn-toggle-norm:hover { background: #dda20a; color: white; transform: translateY(-2px); }
-
-.btn-light {
-    border-radius: 8px;
-    padding: 8px 20px;
-    font-weight: 500;
-    background-color: #fff;
-    transition: all 0.2s;
-}
-.btn-light:hover { background-color: #f8f9fa; transform: translateY(-2px); }
-
-/* بنر اعتبارسنجی */
-#validation-banner { font-size: 0.95rem; padding: 10px 15px; }
-
-/* استایل عناوین */
-.section-title { 
-    color: #2c3e50; 
-    font-weight: bold; 
-    font-size: 1.25rem;
-    margin-top: 10px;
-    margin-bottom: 20px; 
-    display: flex;
-    align-items: center;
-}
-.section-title i {
-    color: #4e73df;
-    background: #eaeffa;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    margin-left: 10px;
-    font-size: 1rem;
+    min-height: 380px;
 }
 
 .chart-title {
-    color: #5a5c69;
-    font-weight: bold;
-    font-size: 0.95rem;
-    margin-bottom: 20px;
+    color: #2d3436;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.chart-title i { margin-left: 8px; font-size: 1.1rem; }
+.chart-title i { margin-left: 8px; color: #4e73df; }
 
-/* ====================================================
-   استایل‌های بخش تفسیر هوشمند - کاملاً بازطراحی شده
-   ==================================================== */
-.report-wrapper { 
-    background: transparent !important; 
-    border: none !important; 
-    box-shadow: none !important; 
-}
-.report-wrapper .section-title { 
-    color: #1a202c; 
-    font-size: 1.4rem; 
-    text-shadow: 0 1px 2px rgba(0,0,0,0.05); 
-    border-bottom: 2px dashed #e2e8f0 !important;
-}
-
+/* --- AI Interpretation Cards --- */
 .report-card { 
     border: none; 
     border-radius: 20px; 
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
-    background: linear-gradient(180deg, #ffffff 0%, #fcfcfc 100%); 
-    display: flex; 
-    flex-direction: column; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.04); 
-    overflow: hidden; 
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04); 
     height: 100%;
-    position: relative;
-    z-index: 1;
+    overflow: hidden;
 }
-.report-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 5px;
-    background: linear-gradient(90deg, #4e73df, #1cc88a);
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 2;
-}
-.report-card:hover { 
-    transform: translateY(-8px); 
-    box-shadow: 0 20px 40px rgba(78, 115, 223, 0.12) !important; 
-}
-.report-card:hover::before { opacity: 1; }
 
 .report-card-header { 
-    background: transparent; 
-    padding: 22px 24px 15px; 
-    border-bottom: 1px solid rgba(0,0,0,0.03); 
-}
-.report-card-body { 
-    padding: 24px; 
-    flex-grow: 1; 
-    display: flex; 
-    flex-direction: column; 
-}
-
-/* باکس استنتاج هوشمند (تغییر رنگ ملایم و جذاب‌تر) */
-.reasoning-box { 
-    background: linear-gradient(145deg, #f8faff 0%, #eef3fb 100%); 
-    border: 1px solid #dce5f4; 
-    border-right: 4px solid #4e73df; 
     padding: 20px; 
-    border-radius: 16px; 
-    margin-top: auto; 
-    position: relative; 
-    box-shadow: inset 0 2px 10px rgba(255,255,255,0.8);
-}
-.reasoning-title { 
-    font-size: 0.95rem; 
-    font-weight: 800; 
-    color: #2c3e50; 
-    margin-bottom: 12px; 
-    display: flex; 
-    align-items: center; 
-}
-.reasoning-title i {
-    color: #4e73df;
-    background: white;
-    padding: 6px;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    margin-left: 8px;
+    border-bottom: 1px solid #f1f3f9; 
 }
 
-/* لیبل‌ها و تگ‌ها */
-.impact-tags { 
-    display: flex; 
-    flex-wrap: wrap; 
-    justify-content: center; 
-    gap: 10px; 
-    margin-top: 18px; 
-    padding-top: 18px; 
-    border-top: 1px solid rgba(78, 115, 223, 0.15); 
-}
-.impact-badge { 
-    font-size: 0.8rem; 
-    padding: 8px 14px; 
-    border-radius: 30px; 
-    display: flex; 
-    align-items: center; 
-    background: #ffffff; 
-    border: 1px solid #e1e8f3; 
-    color: #4a5568; 
-    font-weight: 700; 
-    box-shadow: 0 3px 8px rgba(0,0,0,0.03);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.impact-badge:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
-}
-.impact-badge i { 
-    margin-left: 6px; 
-    font-size: 1rem; 
+.reasoning-box { 
+    background: #f8faff; 
+    border-right: 4px solid #4e73df; 
+    padding: 15px; 
+    border-radius: 12px; 
 }
 
-/* تنظیمات موبایل */
+/* --- Responsive Adjustments (Mobile Focus) --- */
 @media (max-width: 768px) {
-    .btn-sm-mobile { width: 100%; margin-bottom: 8px; justify-content: center; display: flex; }
-    .chart-card { min-height: 320px; padding: 15px; }
-    .stat-card { padding: 15px; }
-    .stat-card h3 { font-size: 1.5rem; }
-    .custom-tabs { flex-direction: column; width: 100%; border-radius: 16px; padding: 15px; }
-    .custom-tabs .nav-item { margin: 5px 0; }
-    .custom-tabs .nav-link { border-radius: 8px; text-align: center; }
+    .dashboard-container { padding: 10px; }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .header-actions .btn-upload, 
+    .header-actions .btn-toggle-norm,
+    .header-actions .btn-export-json {
+        width: 100%;
+        padding: 12px;
+    }
+
+    .section-title { font-size: 1.1rem; margin-bottom: 15px; }
+    
+    .stat-card { padding: 15px; margin-bottom: 10px; }
+    .stat-card h3 { font-size: 1.4rem; }
+
+    .chart-card { 
+        min-height: 320px; 
+        padding: 15px; 
+        margin-bottom: 15px; 
+    }
+
+    .custom-tabs {
+        border-radius: 12px;
+        padding: 5px;
+    }
+    
+    .custom-tabs .nav-link {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+
+    /* تنظیم فونت‌های گزارش در موبایل */
+    .report-card-body { padding: 15px; }
+    .reasoning-box { padding: 12px; }
+    .impact-badge { font-size: 0.75rem; padding: 6px 10px; }
+}
+
+/* اصلاح نمایش اسلایدرهای عددی در چارت‌ها برای موبایل */
+.apexcharts-canvas {
+    margin: 0 auto;
+}
+
+/* انیمیشن برای بارگذاری */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.report-card, .chart-card, .stat-card {
+    animation: fadeIn 0.5s ease forwards;
 }
