@@ -8,7 +8,7 @@
     <!-- فراخوانی فایل استایل‌های مجزا -->
     <link rel="stylesheet" href="assessment_report.css">
     
-    <!-- استفاده از CDN برای لود فایل‌های پایه (رفع خطای 404 در گیت‌هاب) -->
+    <!-- استفاده از CDN برای لود فایل‌های پایه -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
@@ -26,7 +26,6 @@
                 داشبورد تحلیل جامع پرسشنامه ۹۰ آیتمی
                 <span id="mode-badge" class="badge bg-secondary fw-normal fs-6 me-3">منتظر فایل...</span>
             </h4>
-            <!-- کانتینر نمایش اطلاعات کاربری از ستون‌های C و D و E -->
             <div id="user-info-display" class="mt-1 d-flex flex-wrap gap-1 justify-content-center justify-content-md-start"></div>
         </div>
         
@@ -37,7 +36,6 @@
                 <i class="fas fa-arrow-right ms-1 text-secondary"></i> برگشت
             </a>
 
-            <!-- دکمه جدید برای ذخیره JSON -->
             <button id="btn-export-json" class="btn btn-success shadow-sm btn-sm-mobile" style="display: none;">
                 <i class="fas fa-download ms-1"></i> <span>ذخیره JSON</span>
             </button>
@@ -51,7 +49,6 @@
         </div>
     </div>
 
-    <!-- دکمه شناور اعتبارسنجی -->
     <div id="validation-section" class="text-center mb-4" style="display: none;">
         <button type="button" class="btn btn-outline-success shadow-sm rounded-pill px-4 py-2 fw-bold bg-white" data-bs-toggle="modal" data-bs-target="#validationModal">
             <i class="fas fa-shield-check me-2"></i> مشاهده وضعیت اعتبارسنجی پاسخنامه
@@ -60,7 +57,6 @@
 
     <div id="dashboard-content" style="display: none;">
         
-        <!-- تب بندی (Tabs) -->
         <ul class="nav nav-pills custom-tabs mb-4 justify-content-center" id="dashboardTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="roles-tab" data-bs-toggle="pill" data-bs-target="#roles" type="button" role="tab" aria-selected="true">
@@ -94,16 +90,14 @@
             </li>
         </ul>
 
-        <!-- محتوای تب‌ها -->
         <div class="tab-content" id="dashboardTabsContent">
-            
+            <!-- Tabs content same as before -->
             <div class="tab-pane fade show active" id="roles" role="tabpanel">
                 <div class="row g-3 mb-4">
                     <div class="col-md-4"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">نقش غالب (Dominant)</h6><h3 class="fw-bold mb-0" id="top-role">-</h3></div></div>
                     <div class="col-md-4"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">نقش دوم (Secondary)</h6><h3 class="fw-bold mb-0" id="sec-role">-</h3></div></div>
                     <div class="col-md-4"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">فاصله امتیازی (Gap)</h6><h3 class="fw-bold mb-0" id="role-gap">-</h3></div></div>
                 </div>
-
                 <div class="row g-4 mb-3">
                     <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-bullseye text-primary"></i>پروفایل نقش‌های چهارگانه (رادار)</h6><div id="roleRadarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-sort-amount-down text-primary"></i>رتبه‌بندی نقش‌ها</h6><div id="roleBarChart" class="chart-wrapper"></div></div></div>
@@ -118,7 +112,6 @@
                     <div class="col-md-4"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">هوش دوم</h6><h3 class="fw-bold mb-0" id="sec-mi-role">-</h3></div></div>
                     <div class="col-md-4"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">حوزه پیشنهادی برتر</h6><h3 class="fw-bold mb-0" id="top-domain-role">-</h3></div></div>
                 </div>
-
                 <div class="row g-4 mb-3">
                     <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-spider text-info"></i>پروفایل هوش‌های چندگانه</h6><div id="miRadarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-align-left text-info"></i>رتبه‌بندی هوش‌ها</h6><div id="miBarChart" class="chart-wrapper"></div></div></div>
@@ -133,7 +126,6 @@
                     <div class="col-md-4"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">استعداد دوم</h6><h3 class="fw-bold mb-0" id="sec-talent">-</h3></div></div>
                     <div class="col-md-4"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">پتانسیل رشد</h6><h3 class="fw-bold mb-0" id="talent-growth">-</h3></div></div>
                 </div>
-
                 <div class="row g-4 mb-4">
                     <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-star text-warning"></i>پروفایل استعداد</h6><div id="combinedFinalRadarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-chart-bar text-warning"></i>رتبه‌بندی استعداد</h6><div id="combinedFinalBarChart" class="chart-wrapper"></div></div></div>
@@ -160,7 +152,6 @@
                     <div class="col-md-4"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">بالاترین خودکارآمدی</h6><h3 class="fw-bold mb-0" id="top-efficacy">-</h3></div></div>
                     <div class="col-md-4"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">بیشترین شکاف (نیاز به توجه)</h6><h3 class="fw-bold mb-0" id="max-gap-area">-</h3></div></div>
                 </div>
-
                 <div class="row g-4 mb-3">
                     <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-layer-group text-success"></i>پروفایل حوزه‌های حرفه‌ای/هنری</h6><div id="domainRadarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-balance-scale text-success"></i>علاقه در برابر خودکارآمدی</h6><div id="domainDivergingBarChart" class="chart-wrapper"></div></div></div>
@@ -174,7 +165,7 @@
                     <div class="col-xl-6">
                         <div class="chart-card">
                             <h6 class="chart-title"><i class="fas fa-chart-scatter text-danger"></i>تحلیل شکاف: استعداد در برابر اعتماد</h6>
-                            <p class="text-muted small mb-2 text-center">حباب‌های پایین-راست پتانسیل‌های پنهان هستند. (اندازه = علاقه)</p>
+                            <p class="text-muted small mb-2 text-center">حباب‌های پایین-راست پتانسیل‌های پنهان هستند.</p>
                             <div id="bubbleChart" class="chart-wrapper"></div>
                         </div>
                     </div>
@@ -185,7 +176,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="row mb-3">
                     <div class="col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-sort-amount-down text-dark"></i>اولویت‌های توسعه (DPI)</h6><div id="dpiChart" class="chart-wrapper"></div></div></div>
                 </div>
@@ -201,7 +191,6 @@
                     </div>
                 </div>
             </div>
-            
         </div>
     </div>
 </div>
@@ -215,7 +204,6 @@
             </div>
             <div class="modal-body p-4">
                 <div id="validation-banner" class="alert fw-bold shadow-sm d-flex align-items-center rounded-4 border-0 py-3 px-4 mb-4" style="font-size: 0.95rem;"></div>
-                
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="chart-card mb-0 p-3 text-center d-flex flex-column justify-content-center align-items-center bg-light border-0 shadow-none" style="min-height: 200px;">
@@ -235,19 +223,25 @@
     </div>
 </div>
 
-<!-- استفاده از CDN برای لود فایل‌های اسکریپت پایه -->
+<!-- اسکریپت‌های پایه -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
+<!-- اضافه شدن کتابخانه اکسل (SheetJS) - این خط مشکل شما را حل می‌کند -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<!-- فایل‌های دیتای پروژه -->
 <script src="data_config.js"></script>
 <script src="text_bank.js"></script>
 <script src="assessment_report.js"></script>
 
 <script>
     $(document).ready(function() {
+        // Fix for ApexCharts inside Bootstrap Tabs
         $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
             window.dispatchEvent(new Event('resize'));
+            console.log("Tab changed, resizing charts...");
         });
         
         $('#validationModal').on('shown.bs.modal', function () {
