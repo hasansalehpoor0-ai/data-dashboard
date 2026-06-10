@@ -3,47 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>پرسشنامه استعداد هنری کانون فاها</title>
+    <title>پرسشنامه هنری کانون فاها</title>
     
-    <!-- فراخوانی فایل استایل‌های مجزا -->
     <link rel="stylesheet" href="assessment_report.css">
-    
-    <!-- استفاده از CDN برای لود فایل‌های پایه -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 <body>
 
-<div class="dashboard-container px-2 px-md-4 py-4">
+<div class="dashboard-container px-2 px-md-4 py-3">
     
-    <!-- هدر اصلی -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 bg-white p-3 p-md-4 rounded-4 shadow-sm border-light-subtle">
-        <div class="d-flex flex-column align-items-center align-items-md-start w-100">
-            <!-- استفاده از کلاس‌های فلکس برای مرتب شدن متن و مدال در موبایل -->
-            <h4 class="mb-2 fw-bold text-dark fs-5 d-flex align-items-center justify-content-center justify-content-md-start mobile-header-title w-100 text-center text-md-start">
-                <div class="d-flex align-items-center">
-                    <span class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 ms-2">
-                        <i class="fas fa-chart-pie"></i>
-                    </span>
-                    داشبورد تحلیل جامع پرسشنامه ۹۰ آیتمی
-                </div>
-                <span id="mode-badge" class="badge bg-secondary fw-normal fs-6 me-md-3">منتظر فایل...</span>
-            </h4>
-            <div id="user-info-display" class="mt-1 d-flex flex-wrap gap-1 justify-content-center justify-content-md-start"></div>
+    <!-- هدر بهینه‌شده برای موبایل (بدون کشیدگی دکمه‌ها) -->
+    <div class="d-flex flex-column align-items-center mb-4 bg-white p-3 p-md-4 rounded-4 shadow-sm border border-light-subtle text-center">
+        
+        <h4 class="mb-3 fw-bold text-dark fs-5 d-flex align-items-center justify-content-center flex-wrap gap-2">
+            <span class="bg-primary bg-opacity-10 text-primary p-2 rounded-3">
+                <i class="fas fa-chart-pie"></i>
+            </span>
+            داشبورد تحلیل جامع پرسشنامه کانون فاها
+        </h4>
+        
+        <div class="mb-3">
+            <span id="mode-badge" class="badge bg-secondary fw-normal fs-6">منتظر فایل...</span>
         </div>
         
-        <!-- دکمه‌های اضافه حذف شدند و فقط اصلی‌ها ماندند -->
-        <div class="d-flex flex-column flex-md-row justify-content-center gap-2 align-items-center mt-3 mt-md-0 w-100" style="max-width: 300px;">
-            <span id="status-msg" class="text-muted small fw-bold text-center"></span>
-
-            <button id="btn-normalize" class="btn btn-toggle-norm shadow-sm btn-sm-mobile w-100" style="display: none;">
-                <i class="fas fa-balance-scale ms-1"></i> <span>استاندارد Z-Score</span>
+        <div id="user-info-display" class="mb-3 d-flex flex-wrap gap-2 justify-content-center w-100"></div>
+        
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <button id="btn-normalize" class="btn btn-warning text-dark fw-bold shadow-sm px-3 rounded-3" style="display: none;">
+                <i class="fas fa-balance-scale ms-1"></i> استاندارد Z-Score
             </button>
-            
-            <button id="btn-load" class="btn btn-upload shadow-sm btn-sm-mobile w-100">
+            <button id="btn-load" class="btn btn-primary fw-bold shadow-sm px-4 rounded-3">
                 <i class="fas fa-file-upload ms-1"></i> بارگذاری فایل
             </button>
         </div>
+        <span id="status-msg" class="text-muted small fw-bold mt-2 d-block"></span>
     </div>
 
     <div id="validation-section" class="text-center mb-4" style="display: none;">
@@ -54,7 +48,7 @@
 
     <div id="dashboard-content" style="display: none;">
         
-        <ul class="nav nav-pills custom-tabs mb-4 justify-content-center" id="dashboardTabs" role="tablist">
+        <ul class="nav nav-pills custom-tabs justify-content-center mx-auto" id="dashboardTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="roles-tab" data-bs-toggle="pill" data-bs-target="#roles" type="button" role="tab" aria-selected="true">
                     <i class="fas fa-users-cog ms-1"></i> نقش‌ها
@@ -72,7 +66,7 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="interest-tab" data-bs-toggle="pill" data-bs-target="#interest" type="button" role="tab" aria-selected="false">
-                    <i class="fas fa-heart ms-1"></i> علاقه و خودکارآمدی
+                    <i class="fas fa-heart ms-1"></i> علاقه
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -90,43 +84,43 @@
         <div class="tab-content" id="dashboardTabsContent">
             <div class="tab-pane fade show active" id="roles" role="tabpanel">
                 <div class="row g-3 mb-4">
-                    <div class="col-md-4"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">نقش غالب (Dominant)</h6><h3 class="fw-bold mb-0" id="top-role">-</h3></div></div>
-                    <div class="col-md-4"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">نقش دوم (Secondary)</h6><h3 class="fw-bold mb-0" id="sec-role">-</h3></div></div>
-                    <div class="col-md-4"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">فاصله امتیازی (Gap)</h6><h3 class="fw-bold mb-0" id="role-gap">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">نقش غالب (Dominant)</h6><h3 class="fw-bold mb-0" id="top-role">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">نقش دوم (Secondary)</h6><h3 class="fw-bold mb-0" id="sec-role">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">فاصله امتیازی (Gap)</h6><h3 class="fw-bold mb-0" id="role-gap">-</h3></div></div>
                 </div>
                 <div class="row g-4 mb-3">
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-bullseye text-primary"></i>پروفایل نقش‌های چهارگانه (رادار)</h6><div id="roleRadarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-sort-amount-down text-primary"></i>رتبه‌بندی نقش‌ها</h6><div id="roleBarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-chart-pie text-primary"></i>سهم نقش‌ها (دونات)</h6><div id="roleDonutChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-circle-notch text-primary"></i>مساحت قطبی نقش‌ها</h6><div id="rolePolarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-bullseye text-primary"></i>پروفایل نقش‌های چهارگانه (رادار)</h6><div id="roleRadarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-sort-amount-down text-primary"></i>رتبه‌بندی نقش‌ها</h6><div id="roleBarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-chart-pie text-primary"></i>سهم نقش‌ها (دونات)</h6><div id="roleDonutChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-circle-notch text-primary"></i>مساحت قطبی نقش‌ها</h6><div id="rolePolarChart" class="chart-wrapper"></div></div></div>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="intelligence" role="tabpanel">
                 <div class="row g-3 mb-4">
-                    <div class="col-md-4"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">هوش غالب</h6><h3 class="fw-bold mb-0" id="top-mi-role">-</h3></div></div>
-                    <div class="col-md-4"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">هوش دوم</h6><h3 class="fw-bold mb-0" id="sec-mi-role">-</h3></div></div>
-                    <div class="col-md-4"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">حوزه پیشنهادی برتر</h6><h3 class="fw-bold mb-0" id="top-domain-role">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">هوش غالب</h6><h3 class="fw-bold mb-0" id="top-mi-role">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">هوش دوم</h6><h3 class="fw-bold mb-0" id="sec-mi-role">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">حوزه پیشنهادی برتر</h6><h3 class="fw-bold mb-0" id="top-domain-role">-</h3></div></div>
                 </div>
                 <div class="row g-4 mb-3">
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-spider text-info"></i>پروفایل هوش‌های چندگانه</h6><div id="miRadarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-align-left text-info"></i>رتبه‌بندی هوش‌ها</h6><div id="miBarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-spinner text-info"></i>مقیاس شعاعی هوش‌ها</h6><div id="miRadialBarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-compress-arrows-alt text-info"></i>هوش‌ها نسبت به خط مبنا (رادار)</h6><div id="miRadarBenchmarkChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-spider text-info"></i>پروفایل هوش‌های چندگانه</h6><div id="miRadarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-align-left text-info"></i>رتبه‌بندی هوش‌ها</h6><div id="miBarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-spinner text-info"></i>مقیاس شعاعی هوش‌ها</h6><div id="miRadialBarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-compress-arrows-alt text-info"></i>هوش‌ها نسبت به خط مبنا (رادار)</h6><div id="miRadarBenchmarkChart" class="chart-wrapper"></div></div></div>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="talent" role="tabpanel">
                 <div class="row g-3 mb-4">
-                    <div class="col-md-4"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">استعداد برتر</h6><h3 class="fw-bold mb-0" id="top-talent">-</h3></div></div>
-                    <div class="col-md-4"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">استعداد دوم</h6><h3 class="fw-bold mb-0" id="sec-talent">-</h3></div></div>
-                    <div class="col-md-4"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">پتانسیل رشد</h6><h3 class="fw-bold mb-0" id="talent-growth">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">استعداد برتر</h6><h3 class="fw-bold mb-0" id="top-talent">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">استعداد دوم</h6><h3 class="fw-bold mb-0" id="sec-talent">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">پتانسیل رشد</h6><h3 class="fw-bold mb-0" id="talent-growth">-</h3></div></div>
                 </div>
                 <div class="row g-4 mb-4">
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-star text-warning"></i>پروفایل استعداد</h6><div id="combinedFinalRadarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-chart-bar text-warning"></i>رتبه‌بندی استعداد</h6><div id="combinedFinalBarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-circle-notch text-warning"></i>مساحت قطبی استعدادها</h6><div id="talentPolarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6">
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-star text-warning"></i>پروفایل استعداد</h6><div id="combinedFinalRadarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-chart-bar text-warning"></i>رتبه‌بندی استعداد</h6><div id="combinedFinalBarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-circle-notch text-warning"></i>مساحت قطبی استعدادها</h6><div id="talentPolarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12">
                         <div class="chart-card">
                             <h6 class="chart-title"><i class="fas fa-tachometer-alt text-warning"></i>شدت استعداد حوزه‌ها (گیج)</h6>
                             <div class="row">
@@ -144,28 +138,28 @@
 
             <div class="tab-pane fade" id="interest" role="tabpanel">
                 <div class="row g-3 mb-4">
-                    <div class="col-md-4"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">بیشترین علاقه</h6><h3 class="fw-bold mb-0" id="top-interest">-</h3></div></div>
-                    <div class="col-md-4"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">بالاترین خودکارآمدی</h6><h3 class="fw-bold mb-0" id="top-efficacy">-</h3></div></div>
-                    <div class="col-md-4"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">بیشترین شکاف (نیاز به توجه)</h6><h3 class="fw-bold mb-0" id="max-gap-area">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">بیشترین علاقه</h6><h3 class="fw-bold mb-0" id="top-interest">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">بالاترین خودکارآمدی</h6><h3 class="fw-bold mb-0" id="top-efficacy">-</h3></div></div>
+                    <div class="col-md-4 col-12"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">بیشترین شکاف (نیاز به توجه)</h6><h3 class="fw-bold mb-0" id="max-gap-area">-</h3></div></div>
                 </div>
                 <div class="row g-4 mb-3">
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-layer-group text-success"></i>پروفایل حوزه‌های حرفه‌ای/هنری</h6><div id="domainRadarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-balance-scale text-success"></i>علاقه در برابر خودکارآمدی</h6><div id="domainDivergingBarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-dumbbell text-success"></i>شکاف بین علاقه و مهارت (دمبل)</h6><div id="interestDumbbellChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-fire text-success"></i>نقشه حرارتی حوزه‌های بحرانی</h6><div id="interestHeatmapChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-layer-group text-success"></i>پروفایل حوزه‌های حرفه‌ای/هنری</h6><div id="domainRadarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-balance-scale text-success"></i>علاقه در برابر خودکارآمدی</h6><div id="domainDivergingBarChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-dumbbell text-success"></i>شکاف بین علاقه و مهارت (دمبل)</h6><div id="interestDumbbellChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-fire text-success"></i>نقشه حرارتی حوزه‌های بحرانی</h6><div id="interestHeatmapChart" class="chart-wrapper"></div></div></div>
                 </div>
             </div>
 
             <div class="tab-pane fade" id="gaps" role="tabpanel">
                 <div class="row g-4 mb-4">
-                    <div class="col-xl-6">
+                    <div class="col-xl-6 col-12">
                         <div class="chart-card">
                             <h6 class="chart-title"><i class="fas fa-chart-scatter text-danger"></i>تحلیل شکاف: استعداد در برابر اعتماد</h6>
                             <p class="text-muted small mb-2 text-center">حباب‌های پایین-راست پتانسیل‌های پنهان هستند.</p>
                             <div id="bubbleChart" class="chart-wrapper"></div>
                         </div>
                     </div>
-                    <div class="col-xl-6">
+                    <div class="col-xl-6 col-12">
                         <div class="chart-card">
                             <h6 class="chart-title"><i class="fas fa-exchange-alt text-danger"></i>شکاف اقدام: علاقه در برابر خودباوری</h6>
                             <div id="actionGapChart" class="chart-wrapper"></div>
@@ -180,8 +174,8 @@
             <div class="tab-pane fade" id="smart" role="tabpanel">
                 <div class="row">
                     <div class="col-12">
-                        <div class="report-wrapper p-3 bg-white rounded-4 shadow-sm border border-light-subtle">
-                            <h5 class="section-title d-flex justify-content-center pb-3 mb-4"><i class="fas fa-robot text-primary"></i>تفسیر هوشمند شکاف‌ها و استنتاج داینامیک</h5>
+                        <div class="report-wrapper p-3 border-light-subtle">
+                            <h5 class="section-title d-flex justify-content-center pb-3 mb-4"><i class="fas fa-robot text-primary ms-2"></i>تفسیر هوشمند شکاف‌ها</h5>
                             <div id="final-report" class="row g-4 justify-content-center"></div>
                         </div>
                     </div>
@@ -195,7 +189,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
             <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-shield-check text-success ms-2"></i>گزارش اعتبارسنجی روان‌سنجی</h5>
+                <h5 class="modal-title fw-bold text-dark"><i class="fas fa-shield-check text-success ms-2"></i>گزارش اعتبارسنجی</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
@@ -203,13 +197,13 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="chart-card mb-0 p-3 text-center d-flex flex-column justify-content-center align-items-center bg-light border-0 shadow-none" style="min-height: 200px;">
-                            <h6 class="fw-bold mb-2 text-secondary">ضریب اعتبار پاسخنامه (V)</h6>
+                            <h6 class="fw-bold mb-2 text-secondary">ضریب اعتبار پاسخنامه</h6>
                             <div id="validityGaugeChart" class="w-100 d-flex justify-content-center"></div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="chart-card mb-0 p-3 text-center d-flex flex-column justify-content-center align-items-center bg-light border-0 shadow-none" style="min-height: 200px;">
-                            <h6 class="fw-bold mb-2 text-secondary">شاخص پایایی و ثبات (Reliability)</h6>
+                            <h6 class="fw-bold mb-2 text-secondary">شاخص پایایی</h6>
                             <div id="reliabilityGaugeChart" class="w-100 d-flex justify-content-center"></div>
                         </div>
                     </div>
@@ -232,36 +226,9 @@
 
 <script>
     $(document).ready(function() {
-        // --- منطق اسکرول و نمایش انیمیشن با تاخیر ---
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                }
-            });
-        }, { threshold: 0.1 });
-
-        function observeElements() {
-            document.querySelectorAll('.stat-card, .chart-card, .report-card').forEach(el => {
-                observer.observe(el);
-            });
-        }
-        
-        observeElements();
-
-        // Fix for ApexCharts inside Bootstrap Tabs + Re-trigger Animation
+        // برای جلوگیری از بهم ریختگی نمودارهای ApexCharts هنگام تغییر تب
         $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
             window.dispatchEvent(new Event('resize'));
-            
-            // پیدا کردن المان‌های تب جدید و پخش مجدد انیمیشن آن‌ها
-            const targetPane = document.querySelector(e.target.dataset.bsTarget);
-            if(targetPane) {
-                targetPane.querySelectorAll('.stat-card, .chart-card, .report-card').forEach(el => {
-                    el.classList.remove('is-visible');
-                    void el.offsetWidth; // Force Reflow (برای شروع مجدد انیمیشن CSS)
-                    el.classList.add('is-visible');
-                });
-            }
         });
         
         $('#validationModal').on('shown.bs.modal', function () {
