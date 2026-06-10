@@ -2,7 +2,6 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <!-- حذف restrictions زوم تا کاربر بتواند در گوشی زوم کند -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>پرسشنامه استعداد هنری کانون فاها</title>
     
@@ -11,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <script>
-        // تنظیمات پیش‌فرض برای اجرای نرم و زیبای انیمیشن‌های خود نمودارهای Apex
+        // تنظیمات گلوبال انیمیشن‌های ApexCharts
         window.Apex = {
             chart: {
                 animations: {
@@ -103,50 +102,51 @@
         </ul>
 
         <div class="tab-content" id="dashboardTabsContent">
+            
+            <!-- تب نقش‌ها -->
             <div class="tab-pane fade show active" id="roles" role="tabpanel">
-                <!-- تغییر به col-4 برای 3 کارت در یک ردیف -->
                 <div class="row g-2 mb-4">
-                    <div class="col-4 px-1"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">نقش غالب (Dominant)</h6><h3 class="fw-bold mb-0" id="top-role">-</h3></div></div>
-                    <div class="col-4 px-1"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">نقش دوم (Secondary)</h6><h3 class="fw-bold mb-0" id="sec-role">-</h3></div></div>
-                    <div class="col-4 px-1"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">فاصله امتیازی (Gap)</h6><h3 class="fw-bold mb-0" id="role-gap">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-blue"><h6>نقش غالب</h6><h3 id="top-role">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-green"><h6>نقش دوم</h6><h3 id="sec-role">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-orange"><h6>فاصله امتیازی</h6><h3 id="role-gap">-</h3></div></div>
                 </div>
-                <div class="row g-4 mb-3">
-                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-bullseye text-primary"></i>پروفایل نقش‌های چهارگانه (رادار)</h6><div id="roleRadarChart" class="chart-wrapper"></div></div></div>
+                <div class="row g-3 mb-3">
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-bullseye text-primary"></i>پروفایل نقش‌های چهارگانه</h6><div id="roleRadarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-sort-amount-down text-primary"></i>رتبه‌بندی نقش‌ها</h6><div id="roleBarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-chart-pie text-primary"></i>سهم نقش‌ها (دونات)</h6><div id="roleDonutChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-chart-pie text-primary"></i>سهم نقش‌ها</h6><div id="roleDonutChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-circle-notch text-primary"></i>مساحت قطبی نقش‌ها</h6><div id="rolePolarChart" class="chart-wrapper"></div></div></div>
                 </div>
             </div>
 
+            <!-- تب هوش‌ها -->
             <div class="tab-pane fade" id="intelligence" role="tabpanel">
-                <!-- تغییر به col-4 برای 3 کارت در یک ردیف -->
                 <div class="row g-2 mb-4">
-                    <div class="col-4 px-1"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">هوش غالب</h6><h3 class="fw-bold mb-0" id="top-mi-role">-</h3></div></div>
-                    <div class="col-4 px-1"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">هوش دوم</h6><h3 class="fw-bold mb-0" id="sec-mi-role">-</h3></div></div>
-                    <div class="col-4 px-1"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">حوزه پیشنهادی</h6><h3 class="fw-bold mb-0" id="top-domain-role">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-blue"><h6>هوش غالب</h6><h3 id="top-mi-role">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-green"><h6>هوش دوم</h6><h3 id="sec-mi-role">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-orange"><h6>حوزه پیشنهادی</h6><h3 id="top-domain-role">-</h3></div></div>
                 </div>
-                <div class="row g-4 mb-3">
+                <div class="row g-3 mb-3">
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-spider text-info"></i>پروفایل هوش‌های چندگانه</h6><div id="miRadarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-align-left text-info"></i>رتبه‌بندی هوش‌ها</h6><div id="miBarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-spinner text-info"></i>مقیاس شعاعی هوش‌ها</h6><div id="miRadialBarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-compress-arrows-alt text-info"></i>هوش‌ها نسبت به خط مبنا (رادار)</h6><div id="miRadarBenchmarkChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-compress-arrows-alt text-info"></i>هوش‌ها نسبت به خط مبنا</h6><div id="miRadarBenchmarkChart" class="chart-wrapper"></div></div></div>
                 </div>
             </div>
 
+            <!-- تب تحلیل استعداد -->
             <div class="tab-pane fade" id="talent" role="tabpanel">
-                <!-- تغییر به col-4 برای 3 کارت در یک ردیف -->
                 <div class="row g-2 mb-4">
-                    <div class="col-4 px-1"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">استعداد برتر</h6><h3 class="fw-bold mb-0" id="top-talent">-</h3></div></div>
-                    <div class="col-4 px-1"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">استعداد دوم</h6><h3 class="fw-bold mb-0" id="sec-talent">-</h3></div></div>
-                    <div class="col-4 px-1"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">پتانسیل رشد</h6><h3 class="fw-bold mb-0" id="talent-growth">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-blue"><h6>استعداد برتر</h6><h3 id="top-talent">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-green"><h6>استعداد دوم</h6><h3 id="sec-talent">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-orange"><h6>پتانسیل رشد</h6><h3 id="talent-growth">-</h3></div></div>
                 </div>
-                <div class="row g-4 mb-4">
+                <div class="row g-3 mb-4">
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-star text-warning"></i>پروفایل استعداد</h6><div id="combinedFinalRadarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-chart-bar text-warning"></i>رتبه‌بندی استعداد</h6><div id="combinedFinalBarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-circle-notch text-warning"></i>مساحت قطبی استعدادها</h6><div id="talentPolarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12">
                         <div class="chart-card">
-                            <h6 class="chart-title"><i class="fas fa-tachometer-alt text-warning"></i>شدت استعداد حوزه‌ها (گیج)</h6>
+                            <h6 class="chart-title"><i class="fas fa-tachometer-alt text-warning"></i>شدت استعداد حوزه‌ها</h6>
                             <div class="row g-1">
                                 <div class="col-4"><div id="talentGauge0"></div></div>
                                 <div class="col-4"><div id="talentGauge1"></div></div>
@@ -160,23 +160,24 @@
                 </div>
             </div>
 
+            <!-- تب علاقه -->
             <div class="tab-pane fade" id="interest" role="tabpanel">
-                <!-- تغییر به col-4 برای 3 کارت در یک ردیف -->
                 <div class="row g-2 mb-4">
-                    <div class="col-4 px-1"><div class="stat-card bg-blue"><h6 class="opacity-75 mb-2 fs-6">بیشترین علاقه</h6><h3 class="fw-bold mb-0" id="top-interest">-</h3></div></div>
-                    <div class="col-4 px-1"><div class="stat-card bg-green"><h6 class="opacity-75 mb-2 fs-6">خودکارآمدی</h6><h3 class="fw-bold mb-0" id="top-efficacy">-</h3></div></div>
-                    <div class="col-4 px-1"><div class="stat-card bg-orange"><h6 class="opacity-75 mb-2 fs-6">بیشترین شکاف</h6><h3 class="fw-bold mb-0" id="max-gap-area">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-blue"><h6>بیشترین علاقه</h6><h3 id="top-interest">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-green"><h6>خودکارآمدی</h6><h3 id="top-efficacy">-</h3></div></div>
+                    <div class="col-4"><div class="stat-card bg-orange"><h6>بیشترین شکاف</h6><h3 id="max-gap-area">-</h3></div></div>
                 </div>
-                <div class="row g-4 mb-3">
-                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-layer-group text-success"></i>پروفایل حوزه‌های حرفه‌ای/هنری</h6><div id="domainRadarChart" class="chart-wrapper"></div></div></div>
+                <div class="row g-3 mb-3">
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-layer-group text-success"></i>پروفایل حوزه‌های هنری</h6><div id="domainRadarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-balance-scale text-success"></i>علاقه در برابر خودکارآمدی</h6><div id="domainDivergingBarChart" class="chart-wrapper"></div></div></div>
-                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-dumbbell text-success"></i>شکاف بین علاقه و مهارت (دمبل)</h6><div id="interestDumbbellChart" class="chart-wrapper"></div></div></div>
+                    <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-dumbbell text-success"></i>شکاف بین علاقه و مهارت</h6><div id="interestDumbbellChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-fire text-success"></i>نقشه حرارتی حوزه‌های بحرانی</h6><div id="interestHeatmapChart" class="chart-wrapper"></div></div></div>
                 </div>
             </div>
 
+            <!-- تب تحلیل شکاف -->
             <div class="tab-pane fade" id="gaps" role="tabpanel">
-                <div class="row g-4 mb-4">
+                <div class="row g-3 mb-4">
                     <div class="col-xl-6 col-12">
                         <div class="chart-card">
                             <h6 class="chart-title"><i class="fas fa-chart-scatter text-danger"></i>تحلیل شکاف: استعداد در برابر اعتماد</h6>
@@ -196,12 +197,14 @@
                 </div>
             </div>
 
+            <!-- تب تفسیر هوشمند -->
             <div class="tab-pane fade" id="smart" role="tabpanel">
                 <div class="row">
                     <div class="col-12">
-                        <div class="report-wrapper p-3 border-light-subtle">
-                            <h5 class="section-title d-flex justify-content-center pb-3 mb-4"><i class="fas fa-robot text-primary ms-2"></i>تفسیر هوشمند شکاف‌ها</h5>
-                            <div id="final-report" class="row g-4 justify-content-center"></div>
+                        <div class="report-wrapper p-2">
+                            <h5 class="section-title d-flex justify-content-center pb-3 mb-3 fw-bold"><i class="fas fa-robot text-primary ms-2"></i>تفسیر هوشمند شکاف‌ها</h5>
+                            <!-- محتوای این بخش توسط جاوااسکریپت و با استایل‌های جدید .report-card پر می‌شود -->
+                            <div id="final-report" class="row g-3 justify-content-center"></div>
                         </div>
                     </div>
                 </div>
@@ -251,18 +254,14 @@
 
 <script>
     $(document).ready(function() {
-        // بازسازی و اجرای مجدد انیمیشن نمودارها با تغییر تب
+        // تحریک نمودارهای ApexCharts هنگام جابجایی تب با دو مرحله تاخیر برای اطمینان از رندر کامل
         $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
-            // تاخیر کوتاه برای اینکه تب در DOM کاملا نمایان شود
-            setTimeout(function() {
-                window.dispatchEvent(new Event('resize'));
-            }, 50);
+            setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);
+            setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 300);
         });
         
         $('#validationModal').on('shown.bs.modal', function () {
-            setTimeout(function() {
-                window.dispatchEvent(new Event('resize'));
-            }, 50);
+            setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);
         });
     });
 </script>
