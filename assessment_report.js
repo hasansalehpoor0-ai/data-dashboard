@@ -142,7 +142,8 @@ function processAndRender() {
     
     let scores = {};
     for (const [key, value] of Object.entries(globalData)) {
-        scores[key.toUpperCase()] = parseFloat(value) || 0;
+        // افزودن .trim() برای حذف فاصله‌های احتمالی نام ستون در اکسل تا پردازش متوقف نشود
+        scores[key.toUpperCase().trim()] = parseFloat(value) || 0;
     }
 
     // ============================================
@@ -180,8 +181,8 @@ function processAndRender() {
     
     if (validityStatus === "INVALID") {
         banner.removeClass('alert-success alert-warning').addClass('alert-danger')
-              .html(`<i class="fas fa-times-circle me-2 fs-4"></i> <div><strong>پاسخنامه نامعتبر:</strong> به دلیل وجود تناقضات بالا و عدم دقت در پاسخ به سوالات کنترل، نتایج قابل اتکا نیستند و پیشنهاد می‌شود آزمون مجدداً با دقت بیشتر انجام شود.</div>`);
-        $('#dashboard-content').fadeOut();
+              .html(`<i class="fas fa-times-circle me-2 fs-4"></i> <div><strong>پاسخنامه نامعتبر:</strong> به دلیل وجود تناقضات بالا، نتایج اعتبارسنجی پایین است اما جهت بررسی شما نتایج به صورت اجباری نمایش داده می‌شوند.</div>`);
+        $('#dashboard-content').fadeIn(); // اصلاح شد: قبلاً fadeOut بود که کل صفحه را مخفی می‌کرد
     } else if (validityStatus === "SUSPICIOUS") {
         banner.removeClass('alert-danger alert-success').addClass('alert-warning')
               .html(`<i class="fas fa-exclamation-triangle me-2 fs-4"></i> <div><strong>هشدار اعتبار:</strong> تناقضات مشکوکی در برخی از پاسخ‌ها دیده می‌شود. پیشنهاد می‌شود تحلیل و استناد به این نتایج با احتیاط انجام شود.</div>`);
@@ -223,7 +224,8 @@ function processAndRender() {
         colors: [reliabilityVal >= 70 ? '#4e73df' : (reliabilityVal >= 50 ? '#f6c23e' : '#e74a3b')]
     });
 
-    if (validityStatus === "INVALID") return;
+    // اصلاح شد: این خط باعث توقف کل پردازش می‌شد، بنابراین غیرفعال شد تا بقیه داشبورد همیشه لود شود
+    // if (validityStatus === "INVALID") return;
 
     // ============================================
     // پردازش نقش‌های چهارگانه
