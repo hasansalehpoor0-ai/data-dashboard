@@ -5,15 +5,20 @@ let charts = {};
 const DIMS = ['I', 'B', 'T', 'SE'];
 const CATEGORIES = typeof categoryMatrix !== 'undefined' ? Object.keys(categoryMatrix) : [];
 
-// اصلاح بخش لود فایل برای حذف وابستگی به Eel و پایتون
-$('#btn-load').click(function() {
+// اصلاح بخش لود فایل برای باز شدن قطعی پنجره انتخاب فایل در تمامی مرورگرها
+$('#btn-load').click(function(event) {
+    event.preventDefault(); // جلوگیری از رفرش احتمالی صفحه
+    
     let btn = $(this);
     let origHtml = btn.html();
     
-    // ایجاد یک المان مخفی برای انتخاب فایل
-    let fileInput = $('<input type="file" accept=".xlsx, .xls" style="display:none">');
+    // ایجاد المان ورودی فایل با جاوااسکریپت خالص برای سازگاری بهتر
+    let fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.xlsx, .xls';
+    fileInput.style.display = 'none';
     
-    fileInput.on('change', function(e) {
+    fileInput.onchange = function(e) {
         let file = e.target.files[0];
         if (!file) return;
 
@@ -22,20 +27,22 @@ $('#btn-load').click(function() {
         console.log("Starting file process: " + file.name);
 
         let reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function(event) {
             try {
-                let data = new Uint8Array(e.target.result);
+                // بررسی لود شدن کتابخانه پردازش اکسل
+                if (typeof XLSX === 'undefined') {
+                    throw new Error("کتابخانه پردازش اکسل (SheetJS) لود نشده است. لطفاً فایل ایندکس را بررسی کنید.");
+                }
+
+                let data = new Uint8Array(event.target.result);
                 let workbook = XLSX.read(data, {type: 'array'});
                 let firstSheetName = workbook.SheetNames[0];
                 let worksheet = workbook.Sheets[firstSheetName];
                 
-                // تبدیل داده‌ها به فرمت JSON (ردیف اول به عنوان کلید)
                 let jsonData = XLSX.utils.sheet_to_json(worksheet);
-                // همچنین استخراج ستون‌ها با نام حروف (A, B, C...) برای سازگاری با کد شما
                 let columnData = XLSX.utils.sheet_to_json(worksheet, {header: "A"})[1] || {};
 
                 if (jsonData.length > 0) {
-                    // ترکیب داده‌های هدردار و داده‌های ستونی
                     globalData = Object.assign({}, columnData, jsonData[0]);
                     
                     console.log("Data parsed successfully. Sample keys:", Object.keys(globalData).slice(0, 5));
@@ -44,7 +51,6 @@ $('#btn-load').click(function() {
                     $('#btn-normalize').fadeIn();
                     $('#btn-export-json').fadeIn();
 
-                    // نمایش اطلاعات کاربر
                     let userInfoName = globalData['C'] || globalData['Name'] || globalData['نام'] || 'کاربر ناشناس';
                     let userInfoD = globalData['D'] || '';
                     let userInfoE = globalData['E'] || '';
@@ -64,15 +70,25 @@ $('#btn-load').click(function() {
                 }
             } catch (err) {
                 console.error("Processing Error:", err);
-                $('#status-msg').text('Error: Could not read Excel file.').removeClass().addClass('text-danger');
+                $('#status-msg').text('Error: ' + err.message).removeClass().addClass('text-danger');
             } finally {
                 btn.html(origHtml).prop('disabled', false);
             }
         };
+        
+        reader.onerror = function() {
+            console.error("FileReader error");
+            $('#status-msg').text('خطا در خواندن فایل از سیستم.').removeClass().addClass('text-danger');
+            btn.html(origHtml).prop('disabled', false);
+        };
+        
         reader.readAsArrayBuffer(file);
-    });
+    };
     
+    // ترفند مهم برای باز شدن قطعی پنجره انتخاب فایل
+    document.body.appendChild(fileInput);
     fileInput.click();
+    document.body.removeChild(fileInput);
 });
 
 // عملکرد دکمه ذخیره JSON
