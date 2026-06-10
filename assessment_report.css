@@ -34,15 +34,15 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
     border: 1px solid #edf2f9;
     display: inline-flex;
-    flex-wrap: nowrap; /* جلوگیری از شکستن خط در موبایل */
-    overflow-x: auto; /* اسکرول افقی در موبایل */
+    flex-wrap: nowrap;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     max-width: 100%;
     margin-bottom: 15px;
 }
 
 .custom-tabs::-webkit-scrollbar {
-    display: none; /* مخفی کردن اسکرول‌بار تب‌ها */
+    display: none;
 }
 
 .custom-tabs .nav-item {
@@ -77,7 +77,7 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 }
 
 /* --- Buttons --- */
-.btn-upload, .btn-toggle-norm, .btn-export-json, .btn-light {
+.btn-upload, .btn-toggle-norm, .btn-light {
     border-radius: 10px;
     padding: 10px 18px;
     font-weight: 600;
@@ -169,8 +169,7 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     }
     
     .header-actions .btn-upload, 
-    .header-actions .btn-toggle-norm,
-    .header-actions .btn-export-json {
+    .header-actions .btn-toggle-norm {
         width: 100%;
         padding: 12px;
     }
@@ -196,22 +195,38 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
         font-size: 0.8rem;
     }
 
-    /* تنظیم فونت‌های گزارش در موبایل */
     .report-card-body { padding: 15px; }
     .reasoning-box { padding: 12px; }
     .impact-badge { font-size: 0.75rem; padding: 6px 10px; }
+    
+    /* تنظیم هدر برای موبایل */
+    .mobile-header-title {
+        flex-direction: column;
+        gap: 10px;
+    }
 }
 
-/* اصلاح نمایش اسلایدرهای عددی در چارت‌ها برای موبایل */
 .apexcharts-canvas {
     margin: 0 auto;
 }
 
-/* انیمیشن برای بارگذاری */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+/* --- انیمیشن‌های اسکرول با تاخیر ۲ ثانیه --- */
 .report-card, .chart-card, .stat-card {
-    animation: fadeIn 0.5s ease forwards;
+    opacity: 0; /* در ابتدا مخفی هستند */
+}
+
+/* این کلاس توسط جاوااسکریپت هنگام رسیدن به عنصر اضافه می‌شود */
+.is-visible {
+    animation: fadeInSmooth 2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+@keyframes fadeInSmooth {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
 }
