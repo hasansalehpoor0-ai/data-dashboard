@@ -1,13 +1,4 @@
-@font-face {
-    font-family: 'Vazirmatn';
-    src: url('/assets/fonts/Vazirmatn-Regular.woff2') format('woff2');
-    font-weight: normal;
-}
-@font-face {
-    font-family: 'Vazirmatn';
-    src: url('/assets/fonts/Vazirmatn-Bold.woff2') format('woff2');
-    font-weight: bold;
-}
+@import url('https://cdn.jsdelivr.net/npm/vazirmatn@33.0.3/Vazirmatn-font-face.css');
 
 /* مخفی کردن اسکرول‌بار مرورگر اما حفظ قابلیت اسکرول */
 ::-webkit-scrollbar {
