@@ -70,9 +70,9 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 
 /* --- Stats Cards --- */
 .stat-card { 
-    border-radius: 18px; 
+    border-radius: 16px; 
     color: white; 
-    padding: 20px; 
+    padding: 15px; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.06);
     transition: all 0.3s ease;
     border: 1px solid rgba(255,255,255,0.1);
@@ -81,18 +81,20 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 .bg-blue { background: linear-gradient(135deg, #4e73df 0%, #36b9cc 100%); }
 .bg-green { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
 .bg-orange { background: linear-gradient(135deg, #f6c23e 0%, #e74a3b 100%); }
 
-.stat-card h3 { font-weight: 800; font-size: 1.6rem; margin-bottom: 5px; }
-.stat-card p { opacity: 0.9; font-size: 0.85rem; margin-bottom: 0; }
+.stat-card h3 { font-weight: 800; font-size: 1.4rem; margin-bottom: 0; }
+.stat-card h6 { opacity: 0.9; font-size: 0.85rem; margin-bottom: 8px; font-weight: 600; }
 
 /* --- Chart Cards --- */
 .chart-card { 
     background: #ffffff; 
-    border-radius: 20px; 
+    border-radius: 16px; 
     padding: 20px; 
     box-shadow: 0 2px 12px rgba(0,0,0,0.03); 
     border: 1px solid #edf2f9; 
@@ -104,7 +106,7 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 .chart-title {
     color: #2d3436;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.95rem;
     margin-bottom: 15px;
     display: flex;
     align-items: center;
@@ -113,74 +115,106 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 .chart-title i { margin-left: 8px; color: #4e73df; }
 
 /* --- AI Interpretation Cards --- */
-.report-card, .report-wrapper { 
-    border: none; 
-    border-radius: 20px; 
+.report-card { 
+    border: 1px solid #edf2f9; 
+    border-radius: 12px; 
     background: #fff;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04); 
-    height: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02); 
+    margin-bottom: 15px;
     overflow: hidden;
 }
+
 .report-wrapper { opacity: 0; }
 
-.report-card-header { padding: 20px; border-bottom: 1px solid #f1f3f9; }
-.reasoning-box { background: #f8faff; border-right: 4px solid #4e73df; padding: 15px; border-radius: 12px; }
+.report-card-header { 
+    padding: 12px 15px; 
+    border-bottom: 1px solid #f1f3f9; 
+    background-color: #fafbfc;
+}
+.report-card-header h5 {
+    font-size: 0.95rem !important;
+    margin: 0;
+    font-weight: bold;
+    color: #2d3436;
+}
+
+.reasoning-box { 
+    background: #f8faff; 
+    border-right: 3px solid #4e73df; 
+    padding: 12px; 
+    border-radius: 8px; 
+    font-size: 0.8rem; 
+    line-height: 1.7; 
+    margin: 15px;
+    color: #5a5c69;
+    text-align: justify;
+}
 
 /* --- Responsive Adjustments (Mobile Focus) --- */
 @media (max-width: 768px) {
     .dashboard-container { padding: 8px; }
     
-    /* تنظیمات کارت‌های آمار برای نمایش 3 تا در یک ردیف */
+    /* تنظیمات کارت‌های آمار برای نمایش تمیزتر 3 تا در یک ردیف */
     .stat-card { 
-        padding: 10px 5px; 
-        margin-bottom: 0px; 
-        text-align: center;
-        border-radius: 12px;
+        padding: 12px 5px; 
+        border-radius: 10px;
+        min-height: 85px;
     }
     .stat-card h6 { 
-        font-size: 0.65rem !important; 
-        margin-bottom: 4px !important; 
-        line-height: 1.2;
-        white-space: pre-wrap; 
+        font-size: 0.6rem !important; 
+        margin-bottom: 5px !important; 
+        line-height: 1.3;
+        white-space: nowrap; /* جلوگیری از دو خط شدن کلمات کوتاه */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
     }
     .stat-card h3 { 
         font-size: 1.1rem; 
-        margin-bottom: 0;
     }
 
     .chart-card { 
-        min-height: 320px; 
+        min-height: 300px; 
         padding: 12px; 
-        margin-bottom: 15px; 
+        margin-bottom: 10px; 
+        border-radius: 12px;
     }
 
     .custom-tabs { padding: 5px; margin-bottom: 15px; }
     .custom-tabs .nav-link { padding: 6px 12px; font-size: 0.75rem; }
+    
+    /* فشرده‌سازی متن تفسیر هوشمند در موبایل */
+    .reasoning-box {
+        margin: 10px;
+        padding: 10px;
+        font-size: 0.75rem;
+    }
+    .report-card-header { padding: 10px; }
 }
 
 .apexcharts-canvas { margin: 0 auto; }
 
-/* --- انیمیشن‌های هوشمند و متصل به تغییر تب (بدون نیاز به JS) --- */
-@keyframes fadeInUp {
-    0% { opacity: 0; transform: translateY(30px); }
-    100% { opacity: 1; transform: translateY(0); }
+/* --- انیمیشن‌های هوشمند و متصل به تغییر تب --- */
+@keyframes fadeInUpScale {
+    0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* وقتی تب فعال می‌شود، کارت‌های داخل آن با تاخیر پله‌ای ظاهر می‌شوند */
+/* وقتی تب فعال می‌شود، المان‌ها با یک انیمیشن نرم ظاهر می‌شوند */
 .tab-pane.active .stat-card,
 .tab-pane.active .chart-card,
 .tab-pane.active .report-wrapper {
-    animation: fadeInUp 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+    animation: fadeInUpScale 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
 /* تاخیر پله‌پله برای زیبایی بیشتر (Staggered Animation) */
-.tab-pane.active .row > div:nth-child(1) .stat-card { animation-delay: 0.1s; }
-.tab-pane.active .row > div:nth-child(2) .stat-card { animation-delay: 0.2s; }
-.tab-pane.active .row > div:nth-child(3) .stat-card { animation-delay: 0.3s; }
+.tab-pane.active .row > div:nth-child(1) .stat-card { animation-delay: 0.05s; }
+.tab-pane.active .row > div:nth-child(2) .stat-card { animation-delay: 0.15s; }
+.tab-pane.active .row > div:nth-child(3) .stat-card { animation-delay: 0.25s; }
 
-.tab-pane.active .row > div:nth-child(1) .chart-card { animation-delay: 0.3s; }
-.tab-pane.active .row > div:nth-child(2) .chart-card { animation-delay: 0.45s; }
-.tab-pane.active .row > div:nth-child(3) .chart-card { animation-delay: 0.6s; }
-.tab-pane.active .row > div:nth-child(4) .chart-card { animation-delay: 0.75s; }
+.tab-pane.active .row > div:nth-child(1) .chart-card { animation-delay: 0.2s; }
+.tab-pane.active .row > div:nth-child(2) .chart-card { animation-delay: 0.3s; }
+.tab-pane.active .row > div:nth-child(3) .chart-card { animation-delay: 0.4s; }
+.tab-pane.active .row > div:nth-child(4) .chart-card { animation-delay: 0.5s; }
 
-.tab-pane.active .report-wrapper { animation-delay: 0.2s; }
+.tab-pane.active .report-wrapper { animation-delay: 0.15s; }
