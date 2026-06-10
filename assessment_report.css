@@ -38,7 +38,7 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     max-width: 100%;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .custom-tabs::-webkit-scrollbar {
@@ -68,36 +68,6 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3);
 }
 
-/* --- Action Buttons Container --- */
-.header-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-/* --- Buttons --- */
-.btn-upload, .btn-toggle-norm, .btn-light {
-    border-radius: 10px;
-    padding: 10px 18px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    border: none;
-    gap: 8px;
-}
-
-.btn-upload { background: #4e73df; color: white; }
-.btn-upload:hover { background: #2e59d9; color: white; transform: translateY(-2px); }
-
-.btn-toggle-norm { background: #f6c23e; color: #fff; display: none; }
-.btn-toggle-norm:hover { background: #dda20a; transform: translateY(-2px); }
-
-.btn-light { background-color: #fff; border: 1px solid #edf2f9; color: #3b4252; }
-
 /* --- Stats Cards --- */
 .stat-card { 
     border-radius: 18px; 
@@ -107,6 +77,7 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     transition: all 0.3s ease;
     border: 1px solid rgba(255,255,255,0.1);
     height: 100%;
+    opacity: 0; /* برای انیمیشن */
 }
 .bg-blue { background: linear-gradient(135deg, #4e73df 0%, #36b9cc 100%); }
 .bg-green { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
@@ -124,6 +95,7 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     border: 1px solid #edf2f9; 
     height: 100%;
     min-height: 380px;
+    opacity: 0; /* برای انیمیشن */
 }
 
 .chart-title {
@@ -138,7 +110,7 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 .chart-title i { margin-left: 8px; color: #4e73df; }
 
 /* --- AI Interpretation Cards --- */
-.report-card { 
+.report-card, .report-wrapper { 
     border: none; 
     border-radius: 20px; 
     background: #fff;
@@ -146,35 +118,14 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     height: 100%;
     overflow: hidden;
 }
+.report-wrapper { opacity: 0; }
 
-.report-card-header { 
-    padding: 20px; 
-    border-bottom: 1px solid #f1f3f9; 
-}
-
-.reasoning-box { 
-    background: #f8faff; 
-    border-right: 4px solid #4e73df; 
-    padding: 15px; 
-    border-radius: 12px; 
-}
+.report-card-header { padding: 20px; border-bottom: 1px solid #f1f3f9; }
+.reasoning-box { background: #f8faff; border-right: 4px solid #4e73df; padding: 15px; border-radius: 12px; }
 
 /* --- Responsive Adjustments (Mobile Focus) --- */
 @media (max-width: 768px) {
-    .dashboard-container { padding: 10px; }
-    
-    .header-actions {
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .header-actions .btn-upload, 
-    .header-actions .btn-toggle-norm {
-        width: 100%;
-        padding: 12px;
-    }
-
-    .section-title { font-size: 1.1rem; margin-bottom: 15px; }
+    .dashboard-container { padding: 8px; }
     
     .stat-card { padding: 15px; margin-bottom: 10px; }
     .stat-card h3 { font-size: 1.4rem; }
@@ -185,48 +136,33 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
         margin-bottom: 15px; 
     }
 
-    .custom-tabs {
-        border-radius: 12px;
-        padding: 5px;
-    }
-    
-    .custom-tabs .nav-link {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-    }
-
-    .report-card-body { padding: 15px; }
-    .reasoning-box { padding: 12px; }
-    .impact-badge { font-size: 0.75rem; padding: 6px 10px; }
-    
-    /* تنظیم هدر برای موبایل */
-    .mobile-header-title {
-        flex-direction: column;
-        gap: 10px;
-    }
+    .custom-tabs { padding: 5px; margin-bottom: 15px; }
+    .custom-tabs .nav-link { padding: 8px 12px; font-size: 0.8rem; }
 }
 
-.apexcharts-canvas {
-    margin: 0 auto;
+.apexcharts-canvas { margin: 0 auto; }
+
+/* --- انیمیشن‌های هوشمند و متصل به تغییر تب (بدون نیاز به JS) --- */
+@keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
-/* --- انیمیشن‌های اسکرول با تاخیر ۲ ثانیه --- */
-.report-card, .chart-card, .stat-card {
-    opacity: 0; /* در ابتدا مخفی هستند */
+/* وقتی تب فعال می‌شود، کارت‌های داخل آن با تاخیر پله‌ای ظاهر می‌شوند */
+.tab-pane.active .stat-card,
+.tab-pane.active .chart-card,
+.tab-pane.active .report-wrapper {
+    animation: fadeInUp 1s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
-/* این کلاس توسط جاوااسکریپت هنگام رسیدن به عنصر اضافه می‌شود */
-.is-visible {
-    animation: fadeInSmooth 2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
-}
+/* تاخیر پله‌پله برای زیبایی بیشتر (Staggered Animation) */
+.tab-pane.active .row > div:nth-child(1) .stat-card { animation-delay: 0.1s; }
+.tab-pane.active .row > div:nth-child(2) .stat-card { animation-delay: 0.25s; }
+.tab-pane.active .row > div:nth-child(3) .stat-card { animation-delay: 0.4s; }
 
-@keyframes fadeInSmooth {
-    from { 
-        opacity: 0; 
-        transform: translateY(30px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
+.tab-pane.active .row > div:nth-child(1) .chart-card { animation-delay: 0.3s; }
+.tab-pane.active .row > div:nth-child(2) .chart-card { animation-delay: 0.45s; }
+.tab-pane.active .row > div:nth-child(3) .chart-card { animation-delay: 0.6s; }
+.tab-pane.active .row > div:nth-child(4) .chart-card { animation-delay: 0.75s; }
+
+.tab-pane.active .report-wrapper { animation-delay: 0.2s; }
