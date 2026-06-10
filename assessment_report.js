@@ -33,12 +33,22 @@ const SCORE_MAPPING = {
 // ============================================
 // خواندن فایل در مرورگر با FileReader و SheetJS
 // ============================================
+
+// --- ساخت خودکار اینپوت مخفی در صورت عدم وجود (تغییر جدید) ---
+$(document).ready(function() {
+    if ($('#file-upload-input').length === 0) {
+        $('body').append('<input type="file" id="file-upload-input" style="display: none;" accept=".xlsx, .xls">');
+    }
+});
+// -------------------------------------------------------------
+
 $('#btn-load').click(function() {
     // کلیک روی دکمه مخفی آپلود فایل
     $('#file-upload-input').click();
 });
 
-$('#file-upload-input').on('change', function(e) {
+// استفاده از رویداد تغییر (دلیگیت شده به body تا اگر داینامیک ساخته شد کار کند)
+$('body').on('change', '#file-upload-input', function(e) {
     let file = e.target.files[0];
     if (!file) return;
 
