@@ -5,14 +5,13 @@ let charts = {};
 const DIMS = ['I', 'B', 'T', 'SE'];
 const CATEGORIES = typeof categoryMatrix !== 'undefined' ? Object.keys(categoryMatrix) : [];
 
-// اصلاح بخش لود فایل برای باز شدن قطعی پنجره انتخاب فایل در تمامی مرورگرها
+// تغییر متد بارگذاری فایل برای اجرای مستقل در مرورگر (مناسب گیت‌هاب)
 $('#btn-load').click(function(event) {
-    event.preventDefault(); // جلوگیری از رفرش احتمالی صفحه
+    event.preventDefault();
     
     let btn = $(this);
     let origHtml = btn.html();
     
-    // ایجاد المان ورودی فایل با جاوااسکریپت خالص برای سازگاری بهتر
     let fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = '.xlsx, .xls';
@@ -22,16 +21,15 @@ $('#btn-load').click(function(event) {
         let file = e.target.files[0];
         if (!file) return;
 
-        btn.html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
+        btn.html('<i class="fas fa-spinner fa-spin"></i> در حال پردازش...').prop('disabled', true);
         $('#status-msg').text('Reading file, please wait...').removeClass().addClass('text-info');
         console.log("Starting file process: " + file.name);
 
         let reader = new FileReader();
         reader.onload = function(event) {
             try {
-                // بررسی لود شدن کتابخانه پردازش اکسل
                 if (typeof XLSX === 'undefined') {
-                    throw new Error("کتابخانه پردازش اکسل (SheetJS) لود نشده است. لطفاً فایل ایندکس را بررسی کنید.");
+                    throw new Error("SheetJS (XLSX) library is not loaded. Please check your index file.");
                 }
 
                 let data = new Uint8Array(event.target.result);
@@ -70,7 +68,7 @@ $('#btn-load').click(function(event) {
                 }
             } catch (err) {
                 console.error("Processing Error:", err);
-                $('#status-msg').text('Error: ' + err.message).removeClass().addClass('text-danger');
+                $('#status-msg').text('خطا: ' + err.message).removeClass().addClass('text-danger');
             } finally {
                 btn.html(origHtml).prop('disabled', false);
             }
@@ -85,7 +83,6 @@ $('#btn-load').click(function(event) {
         reader.readAsArrayBuffer(file);
     };
     
-    // ترفند مهم برای باز شدن قطعی پنجره انتخاب فایل
     document.body.appendChild(fileInput);
     fileInput.click();
     document.body.removeChild(fileInput);
@@ -95,15 +92,20 @@ $('#btn-load').click(function(event) {
 $('#btn-export-json').click(function() {
     if (!globalData) return;
     
+    // تبدیل داده‌ها به رشته JSON
     const jsonString = JSON.stringify(globalData, null, 2);
+    
+    // ایجاد یک Blob و لینک دانلود
     const blob = new Blob([jsonString], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     
+    // نامگذاری فایل (مثلاً با استفاده از نام کاربر یا زمان)
     const userName = globalData['C'] || 'user';
     a.download = `${userName}_data.json`;
     
+    // شبیه‌سازی کلیک برای دانلود
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -142,7 +144,7 @@ function processAndRender() {
     
     let scores = {};
     for (const [key, value] of Object.entries(globalData)) {
-        // افزودن .trim() برای حذف فاصله‌های احتمالی نام ستون در اکسل تا پردازش متوقف نشود
+        // افزودن trim برای جلوگیری از خطاهای ناشی از فاصله خالی در اکسل
         scores[key.toUpperCase().trim()] = parseFloat(value) || 0;
     }
 
@@ -179,10 +181,11 @@ function processAndRender() {
     let banner = $('#validation-banner');
     let vPercent = (v * 100).toFixed(1);
     
+    // اصلاح بخش داشبورد: از محو شدن جلوگیری شد
     if (validityStatus === "INVALID") {
         banner.removeClass('alert-success alert-warning').addClass('alert-danger')
-              .html(`<i class="fas fa-times-circle me-2 fs-4"></i> <div><strong>پاسخنامه نامعتبر:</strong> به دلیل وجود تناقضات بالا، نتایج اعتبارسنجی پایین است اما جهت بررسی شما نتایج به صورت اجباری نمایش داده می‌شوند.</div>`);
-        $('#dashboard-content').fadeIn(); // اصلاح شد: قبلاً fadeOut بود که کل صفحه را مخفی می‌کرد
+              .html(`<i class="fas fa-times-circle me-2 fs-4"></i> <div><strong>پاسخنامه نامعتبر:</strong> به دلیل وجود تناقضات بالا و عدم دقت در پاسخ به سوالات کنترل، نتایج قابل اتکا نیستند و پیشنهاد می‌شود آزمون مجدداً با دقت بیشتر انجام شود.</div>`);
+        $('#dashboard-content').fadeIn(); // اصلاح شد
     } else if (validityStatus === "SUSPICIOUS") {
         banner.removeClass('alert-danger alert-success').addClass('alert-warning')
               .html(`<i class="fas fa-exclamation-triangle me-2 fs-4"></i> <div><strong>هشدار اعتبار:</strong> تناقضات مشکوکی در برخی از پاسخ‌ها دیده می‌شود. پیشنهاد می‌شود تحلیل و استناد به این نتایج با احتیاط انجام شود.</div>`);
@@ -193,6 +196,7 @@ function processAndRender() {
         $('#dashboard-content').fadeIn();
     }
 
+    // نمودار ضریب اعتبار
     createOrUpdateChart('#validityGaugeChart', {
         series: [parseFloat(vPercent)],
         chart: { type: 'radialBar', height: 180, fontFamily: 'Vazirmatn' },
@@ -208,6 +212,7 @@ function processAndRender() {
         colors: [validityStatus === "VALID" ? '#1cc88a' : (validityStatus === "SUSPICIOUS" ? '#f6c23e' : '#e74a3b')]
     });
 
+    // نمودار شاخص پایایی و ثبات
     let reliabilityVal = s_att === 0 ? 0.0 : ((s_rev + s_dup) / 2.0) * 100;
     createOrUpdateChart('#reliabilityGaugeChart', {
         series: [parseFloat(reliabilityVal.toFixed(1))],
@@ -224,7 +229,7 @@ function processAndRender() {
         colors: [reliabilityVal >= 70 ? '#4e73df' : (reliabilityVal >= 50 ? '#f6c23e' : '#e74a3b')]
     });
 
-    // اصلاح شد: این خط باعث توقف کل پردازش می‌شد، بنابراین غیرفعال شد تا بقیه داشبورد همیشه لود شود
+    // حذف محدودیت بازگشت اجباری برای رسم شدن تمام نمودارها
     // if (validityStatus === "INVALID") return;
 
     // ============================================
@@ -283,16 +288,18 @@ function processAndRender() {
         $('#sec-role').text(typeof LABELS !== 'undefined' && LABELS["ROLE_" + secRole] ? LABELS["ROLE_" + secRole] : secRole);
         $('#role-gap').text(scoreGap.toFixed(1) + " امتیاز");
 
+        // نمودار رادار
         createOrUpdateChart('#roleRadarChart', {
-            series: [{ name: isNormalized ? 'Z-Score' : 'Score', data: [ normalizedRoleScores["R-EXE"].toFixed(1), normalizedRoleScores["R-SUP"].toFixed(1), normalizedRoleScores["R-CRE"].toFixed(1), normalizedRoleScores["R-INTRA"].toFixed(1) ] }],
+            series: [{ name: isNormalized ? 'امتیاز نقش (Z-Score)' : 'امتیاز نقش (۰-۱۰۰)', data: [ normalizedRoleScores["R-EXE"].toFixed(1), normalizedRoleScores["R-SUP"].toFixed(1), normalizedRoleScores["R-CRE"].toFixed(1), normalizedRoleScores["R-INTRA"].toFixed(1) ] }],
             chart: { type: 'radar', height: 350, fontFamily: 'Vazirmatn' },
             labels: ['اجرایی', 'پشتیبانی', 'خلاق', 'درون‌فردی'],
             stroke: { width: 2 }, fill: { opacity: 0.2 }, colors: ['#4e73df'],
             yaxis: { show: false, min: 0, max: 100 }
         });
 
+        // نمودار میله‌ای
         createOrUpdateChart('#roleBarChart', {
-            series: [{ name: isNormalized ? 'Z-Score' : 'Percent', data: roleValuesArr }],
+            series: [{ name: isNormalized ? 'امتیاز Z-Score نسبی' : 'امتیاز (درصد)', data: roleValuesArr }],
             chart: { type: 'bar', height: 350, fontFamily: 'Vazirmatn' },
             plotOptions: { bar: { borderRadius: 4, horizontal: false, distributed: true } },
             colors: ['#1cc88a', '#f6c23e', '#4e73df', '#e74a3b'],
@@ -301,6 +308,7 @@ function processAndRender() {
             legend: { show: false }, yaxis: { min: 0, max: 100 }
         });
         
+        // دونات
         createOrUpdateChart('#roleDonutChart', {
             series: roleValuesArr,
             chart: { type: 'donut', height: 350, fontFamily: 'Vazirmatn' },
@@ -310,6 +318,7 @@ function processAndRender() {
             legend: { position: 'bottom' }
         });
 
+        // مساحت قطبی
         createOrUpdateChart('#rolePolarChart', {
             series: roleValuesArr,
             chart: { type: 'polarArea', height: 350, fontFamily: 'Vazirmatn' },
@@ -373,21 +382,22 @@ function processAndRender() {
     $('#sec-mi-role').text(typeof MI_LABELS !== 'undefined' && MI_LABELS[sortedMI[1]] ? MI_LABELS[sortedMI[1]] : sortedMI[1]);
 
     createOrUpdateChart('#miRadarChart', {
-        series: [{ name: isNormalized ? 'Z-Score' : 'Score', data: Object.keys(MI_LABELS || miFinalScores).map(k => parseFloat(miFinalScores[k].toFixed(1))) }],
+        series: [{ name: isNormalized ? 'نمره هوش (Z-Score)' : 'نمره هوش', data: Object.keys(MI_LABELS || miFinalScores).map(k => parseFloat(miFinalScores[k].toFixed(1))) }],
         chart: { type: 'radar', height: 350, fontFamily: 'Vazirmatn' },
         labels: Object.keys(MI_LABELS || miFinalScores).map(k => MI_LABELS && MI_LABELS[k] ? MI_LABELS[k] : k),
         stroke: { width: 2 }, fill: { opacity: 0.3 }, colors: ['#1cc88a'], yaxis: { show: false, min: 0, max: 100 }
     });
 
     createOrUpdateChart('#miBarChart', {
-        series: [{ name: isNormalized ? 'Z-Score' : 'Score', data: sortedMI.map(k => parseFloat(miFinalScores[k].toFixed(1))) }],
+        series: [{ name: isNormalized ? 'نمره Z-Score' : 'نمره', data: sortedMI.map(k => parseFloat(miFinalScores[k].toFixed(1))) }],
         chart: { type: 'bar', height: 350, fontFamily: 'Vazirmatn' },
         plotOptions: { bar: { horizontal: true, borderRadius: 4, colors: { ranges: [ { from: 0, to: 39.9, color: '#e74a3b' }, { from: 40, to: 69.9, color: '#4e73df' }, { from: 70, to: 100, color: '#1cc88a' } ] } } },
         dataLabels: { enabled: true, formatter: function (val) { return val + "%" } },
         xaxis: { categories: sortedMI.map(k => MI_LABELS && MI_LABELS[k] ? MI_LABELS[k] : k), min: 0, max: 100 },
-        annotations: { xaxis: [{ x: 50, borderColor: '#333', strokeDashArray: 4, label: { style: { color: '#fff', background: '#333' }, text: 'Mean (50)' } }] }
+        annotations: { xaxis: [{ x: 50, borderColor: '#333', strokeDashArray: 4, label: { style: { color: '#fff', background: '#333' }, text: 'میانه (50)' } }] }
     });
 
+    // میله‌ای شعاعی
     createOrUpdateChart('#miRadialBarChart', {
         series: sortedMI.map(k => parseFloat(miFinalScores[k].toFixed(1))),
         chart: { type: 'radialBar', height: 350, fontFamily: 'Vazirmatn' },
@@ -395,10 +405,11 @@ function processAndRender() {
         labels: sortedMI.map(k => MI_LABELS && MI_LABELS[k] ? MI_LABELS[k] : k)
     });
 
+    // رادار با خط مبنا
     createOrUpdateChart('#miRadarBenchmarkChart', {
         series: [
-            { name: 'User Score', data: Object.keys(MI_LABELS || miFinalScores).map(k => parseFloat(miFinalScores[k].toFixed(1))) },
-            { name: 'Average', data: Object.keys(MI_LABELS || miFinalScores).map(() => parseFloat(miMeanValue.toFixed(1))) }
+            { name: 'نمره کاربر', data: Object.keys(MI_LABELS || miFinalScores).map(k => parseFloat(miFinalScores[k].toFixed(1))) },
+            { name: 'میانگین', data: Object.keys(MI_LABELS || miFinalScores).map(() => parseFloat(miMeanValue.toFixed(1))) }
         ],
         chart: { type: 'radar', height: 350, fontFamily: 'Vazirmatn' },
         labels: Object.keys(MI_LABELS || miFinalScores).map(k => MI_LABELS && MI_LABELS[k] ? MI_LABELS[k] : k),
@@ -469,8 +480,8 @@ function processAndRender() {
 
         createOrUpdateChart('#domainRadarChart', {
             series: [ 
-                { name: isNormalized ? 'Interest (Z)' : 'Interest', data: finalCategories.map(C => parseFloat(categoryScores[C].I.toFixed(1))) }, 
-                { name: isNormalized ? 'Efficacy (Z)' : 'Efficacy', data: finalCategories.map(C => parseFloat(categoryScores[C].SE.toFixed(1))) } 
+                { name: isNormalized ? 'علاقه (Z-Score)' : 'علاقه (Interest)', data: finalCategories.map(C => parseFloat(categoryScores[C].I.toFixed(1))) }, 
+                { name: isNormalized ? 'خودکارآمدی (Z-Score)' : 'خودکارآمدی (Self-Efficacy)', data: finalCategories.map(C => parseFloat(categoryScores[C].SE.toFixed(1))) } 
             ],
             chart: { type: 'radar', height: 350, fontFamily: 'Vazirmatn' },
             labels: finalCategories.map(C => typeof LABELS !== 'undefined' && LABELS[C] ? LABELS[C] : C),
@@ -479,8 +490,8 @@ function processAndRender() {
 
         createOrUpdateChart('#domainDivergingBarChart', {
             series: [
-                { name: isNormalized ? 'Interest (Z)' : 'Interest', data: finalCategories.map(C => parseFloat(categoryScores[C].I.toFixed(1))) },
-                { name: isNormalized ? 'Efficacy (Z)' : 'Efficacy', data: finalCategories.map(C => parseFloat(categoryScores[C].SE.toFixed(1))).map(v => -v) }
+                { name: isNormalized ? 'علاقه (Z-Score)' : 'علاقه (Interest)', data: finalCategories.map(C => parseFloat(categoryScores[C].I.toFixed(1))) },
+                { name: isNormalized ? 'خودکارآمدی (Z-Score)' : 'خودکارآمدی (Self-Efficacy)', data: finalCategories.map(C => parseFloat(categoryScores[C].SE.toFixed(1))).map(v => -v) }
             ],
             chart: { type: 'bar', stacked: true, height: 350, fontFamily: 'Vazirmatn' },
             colors: ['#4e73df', '#f6c23e'], plotOptions: { bar: { horizontal: true, barHeight: '80%' } },
@@ -489,6 +500,7 @@ function processAndRender() {
             yaxis: { title: { text: '' } }, tooltip: { y: { formatter: function(val) { return Math.abs(val) + "%"; } } }, legend: { position: 'top' }
         });
 
+        // نمودار دمبل (استفاده از Range Bar)
         let dumbbellData = finalCategories.map(C => {
             let minVal = Math.min(categoryScores[C].I, categoryScores[C].SE);
             let maxVal = Math.max(categoryScores[C].I, categoryScores[C].SE);
@@ -501,9 +513,10 @@ function processAndRender() {
             legend: { show: false }, xaxis: { min: 0, max: 100 }
         });
 
+        // نقشه حرارتی
         let heatSeries = [
-            { name: 'Interest', data: finalCategories.map(C => ({ x: LABELS[C]||C, y: parseFloat(categoryScores[C].I.toFixed(1)) })) },
-            { name: 'Efficacy', data: finalCategories.map(C => ({ x: LABELS[C]||C, y: parseFloat(categoryScores[C].SE.toFixed(1)) })) }
+            { name: 'علاقه', data: finalCategories.map(C => ({ x: LABELS[C]||C, y: parseFloat(categoryScores[C].I.toFixed(1)) })) },
+            { name: 'خودکارآمدی', data: finalCategories.map(C => ({ x: LABELS[C]||C, y: parseFloat(categoryScores[C].SE.toFixed(1)) })) }
         ];
         createOrUpdateChart('#interestHeatmapChart', {
             series: heatSeries,
@@ -572,20 +585,23 @@ function processAndRender() {
     $('#sec-talent').text(typeof LABELS !== 'undefined' && LABELS[sortedFinalDomains[1]] ? LABELS[sortedFinalDomains[1]] : sortedFinalDomains[1]);
 
     createOrUpdateChart('#combinedFinalRadarChart', {
-        series: [{ name: isNormalized ? 'Final Score (Z)' : 'Final Score (%)', data: finalCategories.map(c => parseFloat(F_rel[c].toFixed(1))) }],
+        series: [{ name: isNormalized ? 'امتیاز ترکیبی نهایی (Z-Score)' : 'امتیاز ترکیبی نهایی (درصد واقعی)', data: finalCategories.map(c => parseFloat(F_rel[c].toFixed(1))) }],
         chart: { type: 'radar', height: 350, fontFamily: 'Vazirmatn' },
         labels: finalCategories.map(c => typeof LABELS !== 'undefined' && LABELS[c] ? LABELS[c] : c),
         stroke: { width: 2 }, fill: { opacity: 0.3 }, colors: ['#17a2b8'], markers: { size: 4 }, yaxis: { show: false, min: 0, max: 100 }, dataLabels: { enabled: true }
     });
 
     createOrUpdateChart('#combinedFinalBarChart', {
-        series: [{ name: 'Relative Score', data: sortedFinalDomains.map(c => parseFloat(F_rel[c].toFixed(1))) }],
+        series: [{ name: 'امتیاز نسبی (درصد)', data: sortedFinalDomains.map(c => parseFloat(F_rel[c].toFixed(1))) }],
         chart: { type: 'bar', height: 350, fontFamily: 'Vazirmatn' },
         plotOptions: { bar: { borderRadius: 4, horizontal: true, distributed: false, colors: { ranges: [{ from: 0, to: 70, color: '#f6c23e' }, { from: 70.01, to: 100, color: '#1cc88a' }] } } },
         dataLabels: { enabled: true, formatter: function (val) { return val + "%" } },
         xaxis: { categories: sortedFinalDomains.map(c => typeof LABELS !== 'undefined' && LABELS[c] ? LABELS[c] : c), min: 0, max: 100 }, legend: { show: false }
     });
 
+    // --- مساحت قطبی و ۶ گیج کوچک ---
+    
+    // مساحت قطبی استعدادها
     createOrUpdateChart('#talentPolarChart', {
         series: sortedFinalDomains.map(c => parseFloat(F_rel[c].toFixed(1))),
         chart: { type: 'polarArea', height: 350, fontFamily: 'Vazirmatn' },
@@ -595,6 +611,7 @@ function processAndRender() {
         legend: { position: 'bottom' }
     });
 
+    // ۶ گیج کوچک برای هر استعداد
     let gaugeColors = ['#1cc88a', '#36b9cc', '#4e73df', '#f6c23e', '#e74a3b', '#858796'];
     sortedFinalDomains.forEach((c, index) => {
         let val = parseFloat(F_rel[c].toFixed(1));
@@ -618,7 +635,7 @@ function processAndRender() {
     });
 
     // ============================================
-    // محاسبه Fit Score و موتور تفسیر داینامیک
+    // محاسبه Fit Score و موتور تفسیر داینامیک (TEXT_BANK)
     // ============================================
     const avg = arr => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
     const stdDev = (arr, mean) => Math.sqrt(arr.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / arr.length) || 1;
@@ -669,6 +686,7 @@ function processAndRender() {
         let talent = talentBy[d];
         let interest = interestBy[d];
         let efficacy = efficacyBy[d];
+
         let fitScore = domainFitScores[d];
         let rank = sortedDomainsForRank.indexOf(d); 
         
@@ -684,6 +702,9 @@ function processAndRender() {
             calKey = "OVERCONFIDENT_MILD";
         }
 
+        // ========================================================
+        // اعمال شرط 10٪ اختلاف بین علاقه و خودکارآمدی
+        // ========================================================
         if ((calKey === "OVERCONFIDENT_MILD" || calKey === "OVERCONFIDENT_STRONG") && Math.abs(interest - efficacy) <= 10) {
             calKey = "CALIBRATED";
         }
@@ -732,6 +753,9 @@ function processAndRender() {
         let secondIntel = (intelContributions.length > 1 && intelContributions[1].contribution > 0) ? intelContributions[1].name : bestIntel;
         let thirdIntel = (d === 'NA' && intelContributions.length > 2 && intelContributions[2].contribution > 0) ? intelContributions[2].name : null;
         
+        // ========================================================
+        // استخراج نقش برتر دوم جهت پاس دادن به متن داینامیک
+        // ========================================================
         let bestRole = roleContributions.length > 0 ? roleContributions[0].name : "R-EXE";
         let secondRole = (roleContributions.length > 1 && roleContributions[1].contribution > 0) ? roleContributions[1].name : bestRole;
 
@@ -769,6 +793,9 @@ function processAndRender() {
             reasonTemplate = "تحلیل سیستم برای این حوزه به زودی تکمیل خواهد شد.";
         }
 
+        // ========================================================
+        // تزریق نقش اول و نقش دوم داخل متن داینامیک
+        // ========================================================
         let dynamicReasoningText = reasonTemplate
             .replace(/{intel_name}/g, intelName)
             .replace(/{intel_percent}/g, intelPct)
@@ -776,6 +803,7 @@ function processAndRender() {
             .replace(/{role1_percent}/g, rolePct)
             .replace(/{role2_name}/g, role2Name)
             .replace(/{role2_percent}/g, role2Pct)
+            // در صورتی که متن قبلی با role_name نوشته شده باشد
             .replace(/{role_name}/g, roleName)
             .replace(/{role_percent}/g, rolePct);
 
@@ -799,6 +827,9 @@ function processAndRender() {
             thirdIntelHtml = `<span class="impact-badge" title="سومین هوش موثر"><i class="fas fa-brain text-warning"></i> ${thirdIntelName} ${thirdIntelPct}٪</span>`;
         }
 
+        // ========================================================
+        // تگ HTML نقش دوم در کارت‌ها
+        // ========================================================
         let secondRoleHtml = (item.bestRole !== item.secondRole) ? 
             `<span class="impact-badge" title="نقش کلیدی دوم"><i class="fas fa-user-tag text-secondary"></i> ${role2Name} ${role2Pct}٪</span>` : '';
 
@@ -859,8 +890,10 @@ function processAndRender() {
         let SE = rawCategoryScores[d] ? rawCategoryScores[d].SE : 0;
         let I = rawCategoryScores[d] ? rawCategoryScores[d].I : 0;
         let name = typeof LABELS !== 'undefined' && LABELS[d] ? LABELS[d] : d;
+        
         let gap = I - SE;
         let dpi = (I * T * (1 - (SE / 100))) / 100;
+        
         return { d, name, T, SE, I, gap, dpi, bubbleColor: domainColors[idx] };
     });
 
@@ -877,6 +910,7 @@ function processAndRender() {
     let avgFit = sortedReports.reduce((sum, r) => sum + r.fitScore, 0) / sortedReports.length;
     $('#overall-status').text(avgFit >= 65 ? "بسیار مستعد" : (avgFit >= 50 ? "در حال توسعه" : "نیازمند توجه"));
 
+    // 1. نمودار حباب
     let bubbleSeries = advancedChartData.map(item => ({
         name: item.name,
         data: [[parseFloat(item.SE.toFixed(1)), parseFloat(item.T.toFixed(1)), parseFloat(item.I.toFixed(1))]],
@@ -888,27 +922,29 @@ function processAndRender() {
         chart: { type: 'bubble', height: 350, fontFamily: 'Vazirmatn' },
         dataLabels: { enabled: false },
         plotOptions: { bubble: { minBubbleRadius: 8, maxBubbleRadius: 35 } },
-        xaxis: { type: 'numeric', title: { text: 'Self-Efficacy (SE)' }, min: 0, max: 100, tickAmount: 10 },
-        yaxis: { title: { text: 'Talent (T)' }, min: 0, max: 100, tickAmount: 10 },
+        xaxis: { type: 'numeric', title: { text: 'خودباوری (SE)' }, min: 0, max: 100, tickAmount: 10 },
+        yaxis: { title: { text: 'استعداد (T)' }, min: 0, max: 100, tickAmount: 10 },
         annotations: { xaxis: [{ x: 50, borderColor: '#333', strokeDashArray: 4 }], yaxis: [{ y: 50, borderColor: '#333', strokeDashArray: 4 }] },
-        legend: { position: 'bottom', show: true }, tooltip: { z: { title: 'Interest (I):' } }
+        legend: { position: 'bottom', show: true }, tooltip: { z: { title: 'علاقه (I):' } }
     });
 
+    // 2. نمودار میله‌ای شکاف اقدام
     createOrUpdateChart('#actionGapChart', {
-        series: [{ name: 'Action Gap (I - SE)', data: gapSorted.map(item => parseFloat(item.gap.toFixed(1))) }],
+        series: [{ name: 'شکاف اقدام (I - SE)', data: gapSorted.map(item => parseFloat(item.gap.toFixed(1))) }],
         chart: { type: 'bar', height: 350, fontFamily: 'Vazirmatn' },
         plotOptions: { bar: { horizontal: true, colors: { ranges: [ { from: 10, to: 100, color: '#e74a3b' }, { from: -10, to: 9.99, color: '#f6c23e' }, { from: -100, to: -10.01, color: '#858796' } ] } } },
         dataLabels: { enabled: true, formatter: val => val > 0 ? "+" + val : val },
-        xaxis: { min: -100, max: 100, title: { text: 'Gap Magnitude' } },
-        labels: gapSorted.map(item => item.name)
+        xaxis: { min: -100, max: 100, title: { text: 'مقدار شکاف' } },
+        yaxis: { labels: { formatter: function(val, index) { return val; } } }, labels: gapSorted.map(item => item.name)
     });
 
+    // 3. نمودار اولویت‌های توسعه (DPI)
     createOrUpdateChart('#dpiChart', {
-        series: [{ name: 'Growth Priority (DPI)', data: dpiSorted.map(item => parseFloat(item.dpi.toFixed(1))) }],
+        series: [{ name: 'اولویت توسعه (DPI)', data: dpiSorted.map(item => parseFloat(item.dpi.toFixed(1))) }],
         chart: { type: 'bar', height: 350, fontFamily: 'Vazirmatn' },
         plotOptions: { bar: { horizontal: true, distributed: true, borderRadius: 4 } },
         colors: dpiSorted.map((item, idx) => idx === 0 ? '#1cc88a' : '#8ddcbe'),
         dataLabels: { enabled: true, formatter: val => val.toFixed(1) },
-        xaxis: { title: { text: 'DPI Index' } }, legend: { show: false }, labels: dpiSorted.map(item => item.name)
+        xaxis: { title: { text: 'شاخص DPI' } }, legend: { show: false }, labels: dpiSorted.map(item => item.name)
     });
 }
