@@ -5,87 +5,110 @@ let charts = {};
 const DIMS = ['I', 'B', 'T', 'SE'];
 const CATEGORIES = typeof categoryMatrix !== 'undefined' ? Object.keys(categoryMatrix) : [];
 
-// تغییر متد بارگذاری فایل برای اجرای مستقل در مرورگر (مناسب گیت‌هاب)
-$('#btn-load').click(function(event) {
-    event.preventDefault();
-    
-    let btn = $(this);
+// ============================================
+// منطق جایگزین پایتون: لیست سوالات و تبدیل متن به عدد
+// ============================================
+const QUESTION_CODES = [
+    "TR-1", "G-LIN-1", "RO-1", "R-CRE-1", "TS-1", "G-LOG-1", "NA-1", "R-EXE-1", "PO-1", "G-SPA-1",
+    "Q-REV-1", "FA-1", "R-SUP-1", "G-MUS-1", "G-INTER-1", "G-BOD-1", "R-INTRA-1", "TR-2", "G-LIN-2", "R-CRE-2",
+    "Q-ATT-1", "TS-2", "G-LOG-2", "RO-2", "NA-2", "R-EXE-2", "PO-2", "G-SPA-2", "FA-2", "R-SUP-2",
+    "Q-DUP-2", "G-MUS-2", "G-INTER-2", "G-BOD-2", "R-INTRA-2", "TR-3", "G-LIN-3", "RO-3", "R-CRE-3", "TS-3",
+    "G-LOG-3", "NA-3", "R-EXE-3", "Q-REV-2", "R-SUP-3", "G-SPA-3", "FA-3", "PO-3", "G-MUS-3", "G-INTER-3",
+    "G-BOD-3", "R-INTRA-3", "FA-4", "Q-ATT-2", "TR-4", "RO-4", "R-CRE-4", "Q-DUP-1", "G-LOG-4", "NA-4",
+    "G-SPA-4", "R-EXE-4", "PO-4", "TS-4", "G-LIN-4", "PO-5", "G-MUS-4", "NA-5", "G-BOD-4", "TR-5",
+    "G-LIN-5", "RO-5", "Q-REV-3", "TS-5", "G-MUS-5", "PO-6", "G-SPA-5", "FA-5", "G-BOD-5", "TR-6",
+    "RO-6", "TS-6", "NA-6", "R-SUP-4", "FA-6", "Q-DUP-3", "G-LOG-5", "G-INTER-4", "G-INTER-5", "R-INTRA-4"
+];
+
+const SCORE_MAPPING = {
+    "کاملاً موافق": 5,
+    "کاملا موافق": 5,
+    "موافق": 4,
+    "نه موافق نه مخالف": 3,
+    "مخالف": 2,
+    "کاملاً مخالف": 1,
+    "کاملا مخالف": 1
+};
+
+// ============================================
+// خواندن فایل در مرورگر با FileReader و SheetJS
+// ============================================
+$('#btn-load').click(function() {
+    // کلیک روی دکمه مخفی آپلود فایل
+    $('#file-upload-input').click();
+});
+
+$('#file-upload-input').on('change', function(e) {
+    let file = e.target.files[0];
+    if (!file) return;
+
+    let btn = $('#btn-load');
     let origHtml = btn.html();
-    
-    let fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '.xlsx, .xls';
-    fileInput.style.display = 'none';
-    
-    fileInput.onchange = function(e) {
-        let file = e.target.files[0];
-        if (!file) return;
+    btn.html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
+    $('#status-msg').text('در حال خواندن فایل...').removeClass().addClass('text-info');
 
-        btn.html('<i class="fas fa-spinner fa-spin"></i> در حال پردازش...').prop('disabled', true);
-        $('#status-msg').text('Reading file, please wait...').removeClass().addClass('text-info');
-        console.log("Starting file process: " + file.name);
+    let reader = new FileReader();
+    reader.onload = function(evt) {
+        try {
+            let data = new Uint8Array(evt.target.result);
+            // نیازمند لود بودن کتابخانه SheetJS (xlsx.full.min.js) در فایل HTML است
+            let workbook = XLSX.read(data, {type: 'array'});
+            let firstSheetName = workbook.SheetNames[0];
+            let worksheet = workbook.Sheets[firstSheetName];
 
-        let reader = new FileReader();
-        reader.onload = function(event) {
-            try {
-                if (typeof XLSX === 'undefined') {
-                    throw new Error("SheetJS (XLSX) library is not loaded. Please check your index file.");
-                }
+            let tempGlobalData = {};
 
-                let data = new Uint8Array(event.target.result);
-                let workbook = XLSX.read(data, {type: 'array'});
-                let firstSheetName = workbook.SheetNames[0];
-                let worksheet = workbook.Sheets[firstSheetName];
+            // استخراج اطلاعات کاربر (سطر 4 اکسل در جاوااسکریپت میشه ایندکس 3 یعنی سلول های C4, D4, E4)
+            let cellC = worksheet['C4'];
+            let cellD = worksheet['D4'];
+            let cellE = worksheet['E4'];
+
+            tempGlobalData['C'] = cellC ? cellC.v : 'کاربر ناشناس';
+            tempGlobalData['D'] = cellD ? cellD.v : '';
+            tempGlobalData['E'] = cellE ? cellE.v : '';
+
+            // خواندن 90 سوال از ستون F (ایندکس 5) به بعد از ردیف 4
+            for (let i = 0; i < QUESTION_CODES.length; i++) {
+                let colLetter = XLSX.utils.encode_col(5 + i); // 5 = F, 6 = G, ...
+                let cellRef = colLetter + '4'; // ردیف 4
+                let cell = worksheet[cellRef];
+                let rawValue = cell ? (cell.v + "").trim() : "";
                 
-                let jsonData = XLSX.utils.sheet_to_json(worksheet);
-                let columnData = XLSX.utils.sheet_to_json(worksheet, {header: "A"})[1] || {};
-
-                if (jsonData.length > 0) {
-                    globalData = Object.assign({}, columnData, jsonData[0]);
-                    
-                    console.log("Data parsed successfully. Sample keys:", Object.keys(globalData).slice(0, 5));
-                    
-                    $('#status-msg').text('داده‌ها با موفقیت لود شدند!').removeClass().addClass('text-success');
-                    $('#btn-normalize').fadeIn();
-                    $('#btn-export-json').fadeIn();
-
-                    let userInfoName = globalData['C'] || globalData['Name'] || globalData['نام'] || 'کاربر ناشناس';
-                    let userInfoD = globalData['D'] || '';
-                    let userInfoE = globalData['E'] || '';
-                    
-                    $('#user-info-display').html(`
-                        <span class="badge bg-light text-dark border me-1 mb-1"><i class="fas fa-user text-primary me-1"></i> ${userInfoName}</span>
-                        ${userInfoD ? `<span class="badge bg-light text-dark border me-1 mb-1">${userInfoD}</span>` : ''}
-                        ${userInfoE ? `<span class="badge bg-light text-dark border mb-1">${userInfoE}</span>` : ''}
-                    `);
-
-                    isNormalized = false;
-                    updateNormalizeButton();
-                    processAndRender();
-                    console.log("Dashboard rendered successfully.");
-                } else {
-                    throw new Error("Excel file is empty");
-                }
-            } catch (err) {
-                console.error("Processing Error:", err);
-                $('#status-msg').text('خطا: ' + err.message).removeClass().addClass('text-danger');
-            } finally {
-                btn.html(origHtml).prop('disabled', false);
+                // تبدیل متن به عدد
+                let score = SCORE_MAPPING[rawValue] || 0;
+                tempGlobalData[QUESTION_CODES[i]] = score;
             }
-        };
-        
-        reader.onerror = function() {
-            console.error("FileReader error");
-            $('#status-msg').text('خطا در خواندن فایل از سیستم.').removeClass().addClass('text-danger');
+
+            globalData = tempGlobalData;
+            
+            $('#status-msg').text('داده‌ها با موفقیت لود شدند!').removeClass().addClass('text-success');
+            $('#btn-normalize').fadeIn();
+            $('#btn-export-json').fadeIn(); // نمایش دکمه ذخیره JSON
+
+            // استخراج اطلاعات کاربری از ستون‌های C, D, E و نمایش در هدر
+            let userInfoName = globalData['C'] || 'کاربر ناشناس';
+            let userInfoD = globalData['D'] || '';
+            let userInfoE = globalData['E'] || '';
+            
+            $('#user-info-display').html(`
+                <span class="badge bg-light text-dark border me-1 mb-1"><i class="fas fa-user text-primary me-1"></i> ${userInfoName}</span>
+                ${userInfoD ? `<span class="badge bg-light text-dark border me-1 mb-1">${userInfoD}</span>` : ''}
+                ${userInfoE ? `<span class="badge bg-light text-dark border mb-1">${userInfoE}</span>` : ''}
+            `);
+
+            isNormalized = false;
+            updateNormalizeButton();
+            processAndRender();
+
+        } catch (err) {
+            console.error(err);
+            $('#status-msg').text('خطا در پردازش فایل: ' + err.message).removeClass().addClass('text-danger');
+        } finally {
             btn.html(origHtml).prop('disabled', false);
-        };
-        
-        reader.readAsArrayBuffer(file);
+            $('#file-upload-input').val(''); // ریست کردن ورودی فایل
+        }
     };
-    
-    document.body.appendChild(fileInput);
-    fileInput.click();
-    document.body.removeChild(fileInput);
+    reader.readAsArrayBuffer(file);
 });
 
 // عملکرد دکمه ذخیره JSON
@@ -110,7 +133,6 @@ $('#btn-export-json').click(function() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    console.log("JSON export triggered for user: " + userName);
 });
 
 $('#btn-normalize').click(function() {
@@ -118,7 +140,6 @@ $('#btn-normalize').click(function() {
     isNormalized = !isNormalized;
     updateNormalizeButton();
     processAndRender();
-    console.log("Normalization toggled. State: " + isNormalized);
 });
 
 function updateNormalizeButton() {
@@ -144,8 +165,7 @@ function processAndRender() {
     
     let scores = {};
     for (const [key, value] of Object.entries(globalData)) {
-        // افزودن trim برای جلوگیری از خطاهای ناشی از فاصله خالی در اکسل
-        scores[key.toUpperCase().trim()] = parseFloat(value) || 0;
+        scores[key.toUpperCase()] = parseFloat(value) || 0;
     }
 
     // ============================================
@@ -181,11 +201,11 @@ function processAndRender() {
     let banner = $('#validation-banner');
     let vPercent = (v * 100).toFixed(1);
     
-    // اصلاح بخش داشبورد: از محو شدن جلوگیری شد
+    // اصلاح: داشبورد دیگر fadeOut نمی‌شود و نتایج همیشه رندر می‌شوند
     if (validityStatus === "INVALID") {
         banner.removeClass('alert-success alert-warning').addClass('alert-danger')
-              .html(`<i class="fas fa-times-circle me-2 fs-4"></i> <div><strong>پاسخنامه نامعتبر:</strong> به دلیل وجود تناقضات بالا و عدم دقت در پاسخ به سوالات کنترل، نتایج قابل اتکا نیستند و پیشنهاد می‌شود آزمون مجدداً با دقت بیشتر انجام شود.</div>`);
-        $('#dashboard-content').fadeIn(); // اصلاح شد
+              .html(`<i class="fas fa-times-circle me-2 fs-4"></i> <div><strong>پاسخنامه نامعتبر:</strong> به دلیل وجود تناقضات بالا و عدم دقت در پاسخ به سوالات کنترل، نتایج قابل اتکا نیستند اما داشبورد نمایش داده می‌شود.</div>`);
+        $('#dashboard-content').fadeIn(); 
     } else if (validityStatus === "SUSPICIOUS") {
         banner.removeClass('alert-danger alert-success').addClass('alert-warning')
               .html(`<i class="fas fa-exclamation-triangle me-2 fs-4"></i> <div><strong>هشدار اعتبار:</strong> تناقضات مشکوکی در برخی از پاسخ‌ها دیده می‌شود. پیشنهاد می‌شود تحلیل و استناد به این نتایج با احتیاط انجام شود.</div>`);
@@ -229,7 +249,7 @@ function processAndRender() {
         colors: [reliabilityVal >= 70 ? '#4e73df' : (reliabilityVal >= 50 ? '#f6c23e' : '#e74a3b')]
     });
 
-    // حذف محدودیت بازگشت اجباری برای رسم شدن تمام نمودارها
+    // حذف توقف اجباری (در کد قبلی اینجا return بود)
     // if (validityStatus === "INVALID") return;
 
     // ============================================
@@ -703,7 +723,7 @@ function processAndRender() {
         }
 
         // ========================================================
-        // اعمال شرط 10٪ اختلاف بین علاقه و خودکارآمدی
+        // اعمال شرط 10٪ اختلاف بین علاقه و خودکارآمدی (اصلاح شماره ۱)
         // ========================================================
         if ((calKey === "OVERCONFIDENT_MILD" || calKey === "OVERCONFIDENT_STRONG") && Math.abs(interest - efficacy) <= 10) {
             calKey = "CALIBRATED";
@@ -754,7 +774,7 @@ function processAndRender() {
         let thirdIntel = (d === 'NA' && intelContributions.length > 2 && intelContributions[2].contribution > 0) ? intelContributions[2].name : null;
         
         // ========================================================
-        // استخراج نقش برتر دوم جهت پاس دادن به متن داینامیک
+        // استخراج نقش برتر دوم جهت پاس دادن به متن داینامیک (اصلاح شماره ۲)
         // ========================================================
         let bestRole = roleContributions.length > 0 ? roleContributions[0].name : "R-EXE";
         let secondRole = (roleContributions.length > 1 && roleContributions[1].contribution > 0) ? roleContributions[1].name : bestRole;
@@ -794,7 +814,7 @@ function processAndRender() {
         }
 
         // ========================================================
-        // تزریق نقش اول و نقش دوم داخل متن داینامیک
+        // تزریق نقش اول و نقش دوم داخل متن داینامیک (اصلاح شماره ۲)
         // ========================================================
         let dynamicReasoningText = reasonTemplate
             .replace(/{intel_name}/g, intelName)
@@ -828,7 +848,7 @@ function processAndRender() {
         }
 
         // ========================================================
-        // تگ HTML نقش دوم در کارت‌ها
+        // تگ HTML نقش دوم در کارت‌ها (اصلاح شماره ۳)
         // ========================================================
         let secondRoleHtml = (item.bestRole !== item.secondRole) ? 
             `<span class="impact-badge" title="نقش کلیدی دوم"><i class="fas fa-user-tag text-secondary"></i> ${role2Name} ${role2Pct}٪</span>` : '';
