@@ -78,6 +78,9 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     border: 1px solid rgba(255,255,255,0.1);
     height: 100%;
     opacity: 0; /* برای انیمیشن */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 .bg-blue { background: linear-gradient(135deg, #4e73df 0%, #36b9cc 100%); }
 .bg-green { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
@@ -127,17 +130,32 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 @media (max-width: 768px) {
     .dashboard-container { padding: 8px; }
     
-    .stat-card { padding: 15px; margin-bottom: 10px; }
-    .stat-card h3 { font-size: 1.4rem; }
+    /* تنظیمات کارت‌های آمار برای نمایش 3 تا در یک ردیف */
+    .stat-card { 
+        padding: 10px 5px; 
+        margin-bottom: 0px; 
+        text-align: center;
+        border-radius: 12px;
+    }
+    .stat-card h6 { 
+        font-size: 0.65rem !important; 
+        margin-bottom: 4px !important; 
+        line-height: 1.2;
+        white-space: pre-wrap; 
+    }
+    .stat-card h3 { 
+        font-size: 1.1rem; 
+        margin-bottom: 0;
+    }
 
     .chart-card { 
         min-height: 320px; 
-        padding: 15px; 
+        padding: 12px; 
         margin-bottom: 15px; 
     }
 
     .custom-tabs { padding: 5px; margin-bottom: 15px; }
-    .custom-tabs .nav-link { padding: 8px 12px; font-size: 0.8rem; }
+    .custom-tabs .nav-link { padding: 6px 12px; font-size: 0.75rem; }
 }
 
 .apexcharts-canvas { margin: 0 auto; }
@@ -152,13 +170,13 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 .tab-pane.active .stat-card,
 .tab-pane.active .chart-card,
 .tab-pane.active .report-wrapper {
-    animation: fadeInUp 1s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+    animation: fadeInUp 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
 /* تاخیر پله‌پله برای زیبایی بیشتر (Staggered Animation) */
 .tab-pane.active .row > div:nth-child(1) .stat-card { animation-delay: 0.1s; }
-.tab-pane.active .row > div:nth-child(2) .stat-card { animation-delay: 0.25s; }
-.tab-pane.active .row > div:nth-child(3) .stat-card { animation-delay: 0.4s; }
+.tab-pane.active .row > div:nth-child(2) .stat-card { animation-delay: 0.2s; }
+.tab-pane.active .row > div:nth-child(3) .stat-card { animation-delay: 0.3s; }
 
 .tab-pane.active .row > div:nth-child(1) .chart-card { animation-delay: 0.3s; }
 .tab-pane.active .row > div:nth-child(2) .chart-card { animation-delay: 0.45s; }
