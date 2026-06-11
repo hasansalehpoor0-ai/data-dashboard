@@ -394,55 +394,32 @@
 
 <script>
     $(document).ready(function() {
-        // اسکریپت بررسی همزمان کد ملی و شماره دانشجویی
-        $('#btn-login').on('click', function(e) {
-            let nationalCodeInput = $('#national-code').val().trim();
-            let studentCodeInput = $('#student-code').val().trim();
-            
-            if(!nationalCodeInput || !studentCodeInput) {
-                console.log("Validation Failed: Empty fields.");
-                $('#status-msg').text("لطفاً هم کد ملی و هم شماره دانشجویی را وارد کنید.").css("color", "red").show();
-                e.stopImmediatePropagation();
-                return false;
-            }
+        // اسکریپت استخراج دقیق نام (ستون C) و شماره دانشجویی (ستون D)
+        $('#btn-login').on('click', function() {
+            setTimeout(() => {
+                let nationalCodeInput = $('#national-code').val().trim();
+                
+                if(window.loadedPorslineArrayData && window.loadedPorslineArrayData.length > 0) {
+                    // جستجو در آرایه‌ی ماتریسی (هر سطر یک آرایه است)
+                    let userRowArray = window.loadedPorslineArrayData.find(row => {
+                        return row.some(val => String(val).trim() === nationalCodeInput);
+                    });
 
-            if(window.loadedPorslineArrayData && window.loadedPorslineArrayData.length > 0) {
-                // جستجو در آرایه‌ی ماتریسی که هر دو شرط به طور دقیق در ستون‌های مربوطه برقرار باشند
-                // ستون D = ایندکس 3 (کد دانشجویی)
-                // ستون E = ایندکس 4 (کد ملی)
-                let userRowArray = window.loadedPorslineArrayData.find(row => {
-                    return String(row[4]).trim() === nationalCodeInput && 
-                           String(row[3]).trim() === studentCodeInput;
-                });
-
-                if(userRowArray) {
-                    console.log("Authentication Success");
-                    let fullName = userRowArray[2]; // ستون C
-                    let studentId = userRowArray[3]; // ستون D
-                    
-                    $('#user-info-display').html(`
-                        <span class="badge bg-primary px-3 py-2 fs-6 shadow-sm"><i class="fas fa-user ms-1"></i> ${fullName || 'کاربر سیستم'}</span>
-                        <span class="badge bg-info text-dark px-3 py-2 fs-6 shadow-sm"><i class="fas fa-id-badge ms-1"></i> شماره دانشجویی: ${studentId || '-'}</span>
-                    `);
-                    $('#status-msg').text("").hide();
-                    
-                    // بعد از تایید، لاگین سکشن پنهان و داشبورد نمایش داده می‌شود (این کار در assessment_report.js هم ممکن است هندل شود اما برای اطمینان اضافه شد)
-                    $('#login-section').hide();
-                    $('#dashboard-content').show();
-                    setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);
-                } else {
-                    console.log("Authentication Failed: Mismatch");
-                    // جلوگیری از اجرای ادامه فرآیند (مثل کدهای assessment_report.js که روی لاگین حساس هستند)
-                    e.stopImmediatePropagation();
-                    $('#status-msg').text("کد ملی یا شماره دانشجویی اشتباه است.").css("color", "red").show();
-                    return false;
+                    if(userRowArray) {
+                        // ستون C در جاوااسکریپت می‌شود ایندکس 2
+                        // ستون D می‌شود ایندکس 3
+                        let fullName = userRowArray[2]; 
+                        let studentId = userRowArray[3]; 
+                        
+                        if(fullName || studentId) {
+                            $('#user-info-display').html(`
+                                <span class="badge bg-primary px-3 py-2 fs-6 shadow-sm"><i class="fas fa-user ms-1"></i> ${fullName || 'کاربر سیستم'}</span>
+                                <span class="badge bg-info text-dark px-3 py-2 fs-6 shadow-sm"><i class="fas fa-id-badge ms-1"></i> شماره دانشجویی: ${studentId || '-'}</span>
+                            `);
+                        }
+                    }
                 }
-            } else {
-                 console.log("Data not loaded yet.");
-                 e.stopImmediatePropagation();
-                 $('#status-msg').text("در حال بارگذاری اطلاعات، لطفاً کمی صبر کنید...").css("color", "orange").show();
-                 return false;
-            }
+            }, 800); 
         });
 
         // اجرای انیمیشن 3 ثانیه‌ای و آپدیت خودکار گراف‌ها هنگام تغییر تب
