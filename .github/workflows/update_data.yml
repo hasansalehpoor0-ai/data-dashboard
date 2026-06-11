@@ -25,7 +25,9 @@ jobs:
       - name: Run sync script
         env:
           PORSLINE_API_KEY: ${{ secrets.PORSLINE_API_KEY }}
-        run: python porsline_sync.py
+        run: |
+          ls -la
+          python -u porsline_sync.py
 
       - name: Commit and push changes
         run: |
