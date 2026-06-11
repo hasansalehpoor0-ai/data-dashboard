@@ -1,6 +1,8 @@
 import os
 import json
 import urllib.request
+from urllib.error import HTTPError, URLError
+import sys
 
 # Configuration
 API_KEY = os.environ.get('PORSLINE_API_KEY')
@@ -27,11 +29,26 @@ def fetch_data():
                 print("Data fetched and saved successfully.")
             else:
                 print(f"Failed to fetch data. Status code: {response.status}")
+                sys.exit(1)
+                
+    except HTTPError as e:
+        print(f"HTTP Error: {e.code} - {e.reason}")
+        try:
+            error_body = e.read().decode('utf-8')
+            print(f"Error details: {error_body}")
+        except:
+            pass
+        sys.exit(1)
+    except URLError as e:
+        print(f"URL Error: {e.reason}")
+        sys.exit(1)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An unexpected error occurred: {e}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     if not API_KEY:
         print("Error: PORSLINE_API_KEY environment variable not set.")
+        sys.exit(1)
     else:
         fetch_data()
