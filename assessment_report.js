@@ -51,14 +51,14 @@ function loginUser() {
     let studentCode = $('#student-code').val().trim();
 
     if (!nationalCode || !studentCode) {
-        $('#status-msg').text('Please enter both National ID and Student ID.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+        $('#status-msg').text('لطفاً هم کد ملی و هم شماره دانشجویی را وارد کنید.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
         return;
     }
 
     let btn = $('#btn-login');
     let origHtml = btn.html();
-    btn.html('<i class="fas fa-spinner fa-spin"></i> Authenticating...').prop('disabled', true);
-    $('#status-msg').text('Connecting to database...').removeClass().addClass('text-info mt-2 d-block fw-bold');
+    btn.html('<i class="fas fa-spinner fa-spin"></i> در حال بررسی...').prop('disabled', true);
+    $('#status-msg').text('در حال اتصال به پایگاه داده...').removeClass().addClass('text-info mt-2 d-block fw-bold');
 
     let url = 'data.json?t=' + new Date().getTime();
 
@@ -70,15 +70,24 @@ function loginUser() {
                 console.log("Authentication successful.");
                 processUserRecord(userRecord);
                 $('#login-section').slideUp();
-                $('#status-msg').text('Success! Generating your dashboard...').removeClass().addClass('text-success mt-2 d-block fw-bold');
+                
+                $('#status-msg').text('خوش آمدید به سیستم تحلیل هوشمند استعدادیابی...').removeClass().addClass('text-success mt-2 d-block fw-bold');
+                
+                // محو شدن پیام خوش‌آمدگویی پس از 3 ثانیه
+                setTimeout(function() {
+                    $('#status-msg').fadeOut(function() {
+                        $(this).text('').show();
+                    });
+                }, 3000);
+                
             } else {
                 console.warn("Authentication failed.");
-                $('#status-msg').text('Invalid credentials! National ID or Student ID is incorrect.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+                $('#status-msg').text('اطلاعات نامعتبر است! کد ملی یا شماره دانشجویی اشتباه است.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
             }
         })
         .fail(function(jqxhr, textStatus, error) {
             console.error("Data fetch error:", textStatus, error);
-            $('#status-msg').text('Database error: Could not reach data.json.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+            $('#status-msg').text('خطا در ارتباط با پایگاه داده: امکان دریافت اطلاعات وجود ندارد.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
         })
         .always(function() {
             btn.html(origHtml).prop('disabled', false);
@@ -101,7 +110,7 @@ function processUserRecord(userRecord) {
     let values = Object.values(userRecord);
 
     // استخراج اطلاعات هویتی بر اساس ایندکس‌ها
-    tempGlobalData['NAME'] = values[2] || 'User'; 
+    tempGlobalData['NAME'] = values[2] || 'کاربر'; 
     tempGlobalData['STUDENT_ID'] = values[3] || '';
     tempGlobalData['NATIONAL_ID'] = values[4] || '';
 
@@ -877,72 +886,4 @@ function processAndRender() {
         `;
     });
     $('#final-report').html(reportHtml);
-
-    // ============================================
-    // پیاده‌سازی سه نمودار جدید (Bubble, Gap, DPI)
-    // ============================================
-    let domainColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#6f42c1'];
-    
-    let advancedChartData = finalCategories.map((d, idx) => {
-        let T = ((M_c[d] * 100) + (D_c_val[d] * 100)) / 2.0; 
-        let SE = rawCategoryScores[d] ? rawCategoryScores[d].SE : 0;
-        let I = rawCategoryScores[d] ? rawCategoryScores[d].I : 0;
-        let name = typeof LABELS !== 'undefined' && LABELS[d] ? LABELS[d] : d;
-        
-        let gap = I - SE;
-        let dpi = (I * T * (1 - (SE / 100))) / 100;
-        
-        return { d, name, T, SE, I, gap, dpi, bubbleColor: domainColors[idx] };
-    });
-
-    let gapSorted = [...advancedChartData].sort((a, b) => b.gap - a.gap);
-    $('#max-gap-area').text(gapSorted[0].name);
-
-    let dpiSorted = [...advancedChartData].sort((a, b) => b.dpi - a.dpi);
-    $('#talent-growth').text(dpiSorted[0].name);
-
-    let strongCount = sortedReports.filter(r => r.fitScore >= 70).length;
-    $('#total-strengths').text(strongCount + " حوزه مستعد");
-    $('#development-areas').text(dpiSorted[0].name); 
-    
-    let avgFit = sortedReports.reduce((sum, r) => sum + r.fitScore, 0) / sortedReports.length;
-    $('#overall-status').text(avgFit >= 65 ? "بسیار مستعد" : (avgFit >= 50 ? "در حال توسعه" : "نیازمند توجه"));
-
-    // 1. نمودار حباب
-    let bubbleSeries = advancedChartData.map(item => ({
-        name: item.name,
-        data: [[parseFloat(item.SE.toFixed(1)), parseFloat(item.T.toFixed(1)), parseFloat(item.I.toFixed(1))]],
-        color: item.bubbleColor
-    }));
-
-    createOrUpdateChart('#bubbleChart', {
-        series: bubbleSeries,
-        chart: { type: 'bubble', height: 350, fontFamily: 'Vazirmatn' },
-        dataLabels: { enabled: false },
-        plotOptions: { bubble: { minBubbleRadius: 8, maxBubbleRadius: 35 } },
-        xaxis: { type: 'numeric', title: { text: 'خودباوری (SE)' }, min: 0, max: 100, tickAmount: 10 },
-        yaxis: { title: { text: 'استعداد (T)' }, min: 0, max: 100, tickAmount: 10 },
-        annotations: { xaxis: [{ x: 50, borderColor: '#333', strokeDashArray: 4 }], yaxis: [{ y: 50, borderColor: '#333', strokeDashArray: 4 }] },
-        legend: { position: 'bottom', show: true }, tooltip: { z: { title: 'علاقه (I):' } }
-    });
-
-    // 2. نمودار میله‌ای شکاف اقدام
-    createOrUpdateChart('#actionGapChart', {
-        series: [{ name: 'شکاف اقدام (I - SE)', data: gapSorted.map(item => parseFloat(item.gap.toFixed(1))) }],
-        chart: { type: 'bar', height: 350, fontFamily: 'Vazirmatn' },
-        plotOptions: { bar: { horizontal: true, colors: { ranges: [ { from: 10, to: 100, color: '#e74a3b' }, { from: -10, to: 9.99, color: '#f6c23e' }, { from: -100, to: -10.01, color: '#858796' } ] } } },
-        dataLabels: { enabled: true, formatter: val => val > 0 ? "+" + val : val },
-        xaxis: { min: -100, max: 100, title: { text: 'مقدار شکاف' } },
-        yaxis: { labels: { formatter: function(val, index) { return val; } } }, labels: gapSorted.map(item => item.name)
-    });
-
-    // 3. نمودار اولویت‌های توسعه (DPI)
-    createOrUpdateChart('#dpiChart', {
-        series: [{ name: 'اولویت توسعه (DPI)', data: dpiSorted.map(item => parseFloat(item.dpi.toFixed(1))) }],
-        chart: { type: 'bar', height: 350, fontFamily: 'Vazirmatn' },
-        plotOptions: { bar: { horizontal: true, distributed: true, borderRadius: 4 } },
-        colors: dpiSorted.map((item, idx) => idx === 0 ? '#1cc88a' : '#8ddcbe'),
-        dataLabels: { enabled: true, formatter: val => val.toFixed(1) },
-        xaxis: { title: { text: 'شاخص DPI' } }, legend: { show: false }, labels: dpiSorted.map(item => item.name)
-    });
 }
