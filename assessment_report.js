@@ -6,7 +6,7 @@ const DIMS = ['I', 'B', 'T', 'SE'];
 const CATEGORIES = typeof categoryMatrix !== 'undefined' ? Object.keys(categoryMatrix) : [];
 
 // ============================================
-// منطق جایگزین پایتون: لیست سوالات و تبدیل متن به عدد
+// لیست سوالات و نگاشت تبدیل متن به عدد
 // ============================================
 const QUESTION_CODES = [
     "TR-1", "G-LIN-1", "RO-1", "R-CRE-1", "TS-1", "G-LOG-1", "NA-1", "R-EXE-1", "PO-1", "G-SPA-1",
@@ -31,114 +31,135 @@ const SCORE_MAPPING = {
 };
 
 // ============================================
-// خواندن فایل در مرورگر با FileReader و SheetJS
+// ورود کاربر و دریافت داده‌ها از فایل data.json
 // ============================================
 
-// --- ساخت خودکار اینپوت مخفی در صورت عدم وجود (تغییر جدید) ---
 $(document).ready(function() {
-    if ($('#file-upload-input').length === 0) {
-        $('body').append('<input type="file" id="file-upload-input" style="display: none;" accept=".xlsx, .xls">');
-    }
-});
-// -------------------------------------------------------------
+    $('#btn-login').click(function() {
+        loginUser();
+    });
 
-$('#btn-load').click(function() {
-    // کلیک روی دکمه مخفی آپلود فایل
-    $('#file-upload-input').click();
-});
-
-// استفاده از رویداد تغییر (دلیگیت شده به body تا اگر داینامیک ساخته شد کار کند)
-$('body').on('change', '#file-upload-input', function(e) {
-    let file = e.target.files[0];
-    if (!file) return;
-
-    let btn = $('#btn-load');
-    let origHtml = btn.html();
-    btn.html('<i class="fas fa-spinner fa-spin"></i> Processing...').prop('disabled', true);
-    $('#status-msg').text('در حال خواندن فایل...').removeClass().addClass('text-info');
-
-    let reader = new FileReader();
-    reader.onload = function(evt) {
-        try {
-            let data = new Uint8Array(evt.target.result);
-            // نیازمند لود بودن کتابخانه SheetJS (xlsx.full.min.js) در فایل HTML است
-            let workbook = XLSX.read(data, {type: 'array'});
-            let firstSheetName = workbook.SheetNames[0];
-            let worksheet = workbook.Sheets[firstSheetName];
-
-            let tempGlobalData = {};
-
-            // استخراج اطلاعات کاربر (سطر 4 اکسل در جاوااسکریپت میشه ایندکس 3 یعنی سلول های C4, D4, E4)
-            let cellC = worksheet['C4'];
-            let cellD = worksheet['D4'];
-            let cellE = worksheet['E4'];
-
-            tempGlobalData['C'] = cellC ? cellC.v : 'کاربر ناشناس';
-            tempGlobalData['D'] = cellD ? cellD.v : '';
-            tempGlobalData['E'] = cellE ? cellE.v : '';
-
-            // خواندن 90 سوال از ستون F (ایندکس 5) به بعد از ردیف 4
-            for (let i = 0; i < QUESTION_CODES.length; i++) {
-                let colLetter = XLSX.utils.encode_col(5 + i); // 5 = F, 6 = G, ...
-                let cellRef = colLetter + '4'; // ردیف 4
-                let cell = worksheet[cellRef];
-                let rawValue = cell ? (cell.v + "").trim() : "";
-                
-                // تبدیل متن به عدد
-                let score = SCORE_MAPPING[rawValue] || 0;
-                tempGlobalData[QUESTION_CODES[i]] = score;
-            }
-
-            globalData = tempGlobalData;
-            
-            $('#status-msg').text('داده‌ها با موفقیت لود شدند!').removeClass().addClass('text-success');
-            $('#btn-normalize').fadeIn();
-            $('#btn-export-json').fadeIn(); // نمایش دکمه ذخیره JSON
-
-            // استخراج اطلاعات کاربری از ستون‌های C, D, E و نمایش در هدر
-            let userInfoName = globalData['C'] || 'کاربر ناشناس';
-            let userInfoD = globalData['D'] || '';
-            let userInfoE = globalData['E'] || '';
-            
-            $('#user-info-display').html(`
-                <span class="badge bg-light text-dark border me-1 mb-1"><i class="fas fa-user text-primary me-1"></i> ${userInfoName}</span>
-                ${userInfoD ? `<span class="badge bg-light text-dark border me-1 mb-1">${userInfoD}</span>` : ''}
-                ${userInfoE ? `<span class="badge bg-light text-dark border mb-1">${userInfoE}</span>` : ''}
-            `);
-
-            isNormalized = false;
-            updateNormalizeButton();
-            processAndRender();
-
-        } catch (err) {
-            console.error(err);
-            $('#status-msg').text('خطا در پردازش فایل: ' + err.message).removeClass().addClass('text-danger');
-        } finally {
-            btn.html(origHtml).prop('disabled', false);
-            $('#file-upload-input').val(''); // ریست کردن ورودی فایل
+    // اضافه کردن قابلیت ورود با فشردن دکمه Enter
+    $('#national-code, #student-code').keypress(function(e) {
+        if (e.which === 13) {
+            loginUser();
         }
-    };
-    reader.readAsArrayBuffer(file);
+    });
 });
 
-// عملکرد دکمه ذخیره JSON
+function loginUser() {
+    let nationalCode = $('#national-code').val().trim();
+    let studentCode = $('#student-code').val().trim();
+
+    if (!nationalCode) {
+        $('#status-msg').text('لطفاً کد ملی را وارد کنید.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+        return;
+    }
+
+    let btn = $('#btn-login');
+    let origHtml = btn.html();
+    btn.html('<i class="fas fa-spinner fa-spin"></i> در حال احراز هویت...').prop('disabled', true);
+    $('#status-msg').text('در حال دریافت اطلاعات...').removeClass().addClass('text-info mt-2 d-block fw-bold');
+
+    // استفاده از cache-buster برای اطمینان از دریافت آخرین تغییرات گیت‌هاب
+    let url = 'data.json?t=' + new Date().getTime();
+
+    $.getJSON(url)
+        .done(function(data) {
+            let userRecord = checkUserCredentials(data, nationalCode, studentCode);
+
+            if (userRecord) {
+                processUserRecord(userRecord);
+                $('#login-section').slideUp();
+                $('#status-msg').text('ورود موفق! در حال پردازش کارنامه...').removeClass().addClass('text-success mt-2 d-block fw-bold');
+            } else {
+                $('#status-msg').text('کاربری با این مشخصات یافت نشد!').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+            }
+        })
+        .fail(function(jqxhr, textStatus, error) {
+            let err = textStatus + ", " + error;
+            console.error("Fetch JSON Error: " + err);
+            $('#status-msg').text('خطا در دریافت اطلاعات (فایل data.json در دسترس نیست).').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+        })
+        .always(function() {
+            btn.html(origHtml).prop('disabled', false);
+        });
+}
+
+function checkUserCredentials(data, nationalCode, studentCode) {
+    // تابع جستجوی انعطاف‌پذیر: تطبیق کلیدهای احتمالی کد ملی
+    return data.find(row => {
+        let recordNational = row['کد ملی'] || row['کدملی'] || row['national_code'] || row['NationalCode'];
+        
+        // اگر نام فیلد در JSON متفاوت باشد، جستجو درون تمام مقادیر آن سطر (به عنوان روش پشتیبان)
+        if (!recordNational) {
+            let values = Object.values(row);
+            if (values.includes(nationalCode)) return true;
+        }
+        
+        return recordNational == nationalCode;
+    });
+}
+
+function processUserRecord(userRecord) {
+    let tempGlobalData = {};
+
+    // استخراج اطلاعات هویتی کاربر
+    tempGlobalData['C'] = userRecord['نام و نام خانوادگی'] || userRecord['نام'] || 'کاربر سیستم';
+    tempGlobalData['D'] = userRecord['کد ملی'] || userRecord['کدملی'] || userRecord['NationalCode'] || '';
+    tempGlobalData['E'] = userRecord['شماره دانشجویی'] || userRecord['کد دانشجویی'] || userRecord['StudentCode'] || '';
+
+    // استخراج هوشمند پاسخ‌های 90 سوال
+    // این حلقه مقادیر متنی را در فایل کاربر پیدا کرده و تبدیل به عدد می‌کند.
+    let answers = [];
+    for (let key in userRecord) {
+        let val = userRecord[key];
+        if (typeof val === 'string') {
+            let trimmed = val.trim();
+            if (SCORE_MAPPING[trimmed] !== undefined) {
+                answers.push(SCORE_MAPPING[trimmed]);
+            }
+        } else if (typeof val === 'number' && val >= 1 && val <= 5) {
+            // در صورتی که مستقیماً عدد دریافت شود
+            answers.push(val);
+        }
+    }
+
+    // انتساب مقادیر به کدهای استاندارد سوالات
+    for (let i = 0; i < QUESTION_CODES.length; i++) {
+        tempGlobalData[QUESTION_CODES[i]] = answers[i] !== undefined ? answers[i] : 0;
+    }
+
+    globalData = tempGlobalData;
+
+    // استخراج اطلاعات کاربری برای نمایش در هدر
+    let userInfoName = globalData['C'];
+    let userInfoD = globalData['D'];
+    let userInfoE = globalData['E'];
+    
+    $('#user-info-display').html(`
+        <span class="badge bg-light text-dark border me-1 mb-1"><i class="fas fa-user text-primary me-1"></i> ${userInfoName}</span>
+        ${userInfoD ? `<span class="badge bg-light text-dark border me-1 mb-1">${userInfoD}</span>` : ''}
+        ${userInfoE ? `<span class="badge bg-light text-dark border mb-1">${userInfoE}</span>` : ''}
+    `);
+
+    isNormalized = false;
+    $('#btn-normalize').fadeIn();
+    $('#btn-export-json').fadeIn();
+    updateNormalizeButton();
+    processAndRender();
+}
+
+// عملکرد دکمه ذخیره JSON (حفظ شد بر اساس درخواست شما)
 $('#btn-export-json').click(function() {
     if (!globalData) return;
-    
-    // تبدیل داده‌ها به رشته JSON
     const jsonString = JSON.stringify(globalData, null, 2);
-    
-    // ایجاد یک Blob و لینک دانلود
     const blob = new Blob([jsonString], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    
-    // نامگذاری فایل (مثلاً با استفاده از نام کاربر یا زمان)
     const userName = globalData['C'] || 'user';
     a.download = `${userName}_data.json`;
-    
-    // شبیه‌سازی کلیک برای دانلود
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -258,9 +279,6 @@ function processAndRender() {
         },
         colors: [reliabilityVal >= 70 ? '#4e73df' : (reliabilityVal >= 50 ? '#f6c23e' : '#e74a3b')]
     });
-
-    // حذف توقف اجباری (در کد قبلی اینجا return بود)
-    // if (validityStatus === "INVALID") return;
 
     // ============================================
     // پردازش نقش‌های چهارگانه
@@ -732,9 +750,7 @@ function processAndRender() {
             calKey = "OVERCONFIDENT_MILD";
         }
 
-        // ========================================================
-        // اعمال شرط 10٪ اختلاف بین علاقه و خودکارآمدی (اصلاح شماره ۱)
-        // ========================================================
+        // اعمال شرط 10٪ اختلاف بین علاقه و خودکارآمدی
         if ((calKey === "OVERCONFIDENT_MILD" || calKey === "OVERCONFIDENT_STRONG") && Math.abs(interest - efficacy) <= 10) {
             calKey = "CALIBRATED";
         }
@@ -783,9 +799,6 @@ function processAndRender() {
         let secondIntel = (intelContributions.length > 1 && intelContributions[1].contribution > 0) ? intelContributions[1].name : bestIntel;
         let thirdIntel = (d === 'NA' && intelContributions.length > 2 && intelContributions[2].contribution > 0) ? intelContributions[2].name : null;
         
-        // ========================================================
-        // استخراج نقش برتر دوم جهت پاس دادن به متن داینامیک (اصلاح شماره ۲)
-        // ========================================================
         let bestRole = roleContributions.length > 0 ? roleContributions[0].name : "R-EXE";
         let secondRole = (roleContributions.length > 1 && roleContributions[1].contribution > 0) ? roleContributions[1].name : bestRole;
 
@@ -823,9 +836,6 @@ function processAndRender() {
             reasonTemplate = "تحلیل سیستم برای این حوزه به زودی تکمیل خواهد شد.";
         }
 
-        // ========================================================
-        // تزریق نقش اول و نقش دوم داخل متن داینامیک (اصلاح شماره ۲)
-        // ========================================================
         let dynamicReasoningText = reasonTemplate
             .replace(/{intel_name}/g, intelName)
             .replace(/{intel_percent}/g, intelPct)
@@ -833,7 +843,6 @@ function processAndRender() {
             .replace(/{role1_percent}/g, rolePct)
             .replace(/{role2_name}/g, role2Name)
             .replace(/{role2_percent}/g, role2Pct)
-            // در صورتی که متن قبلی با role_name نوشته شده باشد
             .replace(/{role_name}/g, roleName)
             .replace(/{role_percent}/g, rolePct);
 
@@ -857,9 +866,6 @@ function processAndRender() {
             thirdIntelHtml = `<span class="impact-badge" title="سومین هوش موثر"><i class="fas fa-brain text-warning"></i> ${thirdIntelName} ${thirdIntelPct}٪</span>`;
         }
 
-        // ========================================================
-        // تگ HTML نقش دوم در کارت‌ها (اصلاح شماره ۳)
-        // ========================================================
         let secondRoleHtml = (item.bestRole !== item.secondRole) ? 
             `<span class="impact-badge" title="نقش کلیدی دوم"><i class="fas fa-user-tag text-secondary"></i> ${role2Name} ${role2Pct}٪</span>` : '';
 
