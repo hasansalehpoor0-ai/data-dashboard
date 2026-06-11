@@ -28,13 +28,7 @@ jobs:
         run: python porsline_sync.py
 
       - name: Commit and push changes
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git add .
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "No changes to commit"
-          else
-            git commit -m "Auto-update data from Porsline"
-            git push origin HEAD:main
-          fi
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto-update data from Porsline"
+          branch: main
