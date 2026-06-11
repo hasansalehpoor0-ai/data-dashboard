@@ -76,6 +76,30 @@
             100% { opacity: 1; transform: translateY(0); }
         }
         .login-icon i { transition: transform 0.3s; }
+
+        /* --- اصلاحات بخش تفسیر هوشمند (جلوگیری از چسبیدن متن به حاشیه‌ها) --- */
+        #smart .report-card {
+            padding: 20px !important; 
+            border-radius: 16px !important;
+            margin-bottom: 25px !important;
+        }
+        #smart .report-card p, 
+        #smart .report-card div,
+        #smart .text-justify {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+            line-height: 2.2 !important;
+            text-align: justify !important;
+        }
+        .reasoning-box {
+            padding: 20px 25px !important;
+            margin: 20px 10px !important;
+            border-radius: 12px !important;
+            line-height: 2.1 !important;
+        }
+        #final-report {
+            padding: 10px !important;
+        }
     </style>
 
     <script>
@@ -117,7 +141,7 @@
         
         <div id="user-info-display" class="mb-3 d-flex flex-wrap gap-2 justify-content-center w-100 text-muted small fw-bold"></div>
         
-        <!-- دکمه استانداردسازی به جایگاه اصلی برگشت -->
+        <!-- دکمه استانداردسازی -->
         <div class="d-flex gap-2 justify-content-center flex-wrap mb-2">
             <button id="btn-normalize" class="btn btn-warning btn-sm-mobile text-dark fw-bold shadow-sm rounded-3" style="display: none;">
                 <i class="fas fa-balance-scale ms-1"></i> استاندارد Z-Score
@@ -304,8 +328,9 @@
 <script>
     console.log("Initializing direct Excel reader interceptor...");
     
-    // متغیر سراسری برای نگه‌داری موقت داده‌های کاربران جهت پیدا کردن نام و شماره دانشجویی
+    // متغیرهای سراسری برای نگهداری فرمت‌های مختلف دیتای اکسل
     window.loadedPorslineData = [];
+    window.loadedPorslineArrayData = []; // برای استخراج مستقیم از ستون‌ها
 
     const originalFetch = window.fetch;
     window.fetch = async function(...args) {
@@ -317,10 +342,14 @@
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                // استفاده از header: 1 برای خواندن آرایه‌ای و نادیده گرفتن سرستون‌های عجیب پُرس‌لاین
-                const rawJson = XLSX.utils.sheet_to_json(firstSheet, {defval: ""});
                 
-                window.loadedPorslineData = rawJson; // ذخیره برای جستجوی نام
+                // خواندن استاندارد برای تغذیه چارت‌ها (آرایه از آبجکت)
+                const rawJson = XLSX.utils.sheet_to_json(firstSheet, {defval: ""});
+                // خواندن ماتریسی (آرایه در آرایه) برای دسترسی مستقیم به شماره ستون‌ها
+                const rawArrayJson = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: ""});
+                
+                window.loadedPorslineData = rawJson;
+                window.loadedPorslineArrayData = rawArrayJson; 
                 console.log("Excel file loaded and parsed successfully.");
                 
                 return new Response(JSON.stringify(rawJson), { 
@@ -343,8 +372,12 @@
                     try {
                         const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        
                         const rawJson = XLSX.utils.sheet_to_json(firstSheet, {defval: ""});
+                        const rawArrayJson = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: ""});
+                        
                         window.loadedPorslineData = rawJson;
+                        window.loadedPorslineArrayData = rawArrayJson;
                         return JSON.stringify(rawJson);
                     } catch (error) {
                         return "[]";
@@ -361,26 +394,22 @@
 
 <script>
     $(document).ready(function() {
-        // اسکریپت جایگزینی نام و نام خانوادگی و شماره دانشجویی
+        // اسکریپت استخراج دقیق نام (ستون C) و شماره دانشجویی (ستون D)
         $('#btn-login').on('click', function() {
             setTimeout(() => {
                 let nationalCodeInput = $('#national-code').val().trim();
-                if(window.loadedPorslineData && window.loadedPorslineData.length > 0) {
-                    // جستجو در آرایه‌های جیسون برای پیدا کردن فرد موردنظر
-                    let userRow = window.loadedPorslineData.find(row => {
-                        // چک کردن تمام مقادیر یک سطر برای پیدا کردن کد ملی
-                        return Object.values(row).some(val => String(val).trim() === nationalCodeInput);
+                
+                if(window.loadedPorslineArrayData && window.loadedPorslineArrayData.length > 0) {
+                    // جستجو در آرایه‌ی ماتریسی (هر سطر یک آرایه است)
+                    let userRowArray = window.loadedPorslineArrayData.find(row => {
+                        return row.some(val => String(val).trim() === nationalCodeInput);
                     });
 
-                    if(userRow) {
-                        // پیدا کردن کلیدهای مربوط به نام و شماره دانشجویی (چون سرستون‌ها در پُرس‌لاین متغیرند)
-                        let fullName = "";
-                        let studentId = "";
-                        
-                        for (let key in userRow) {
-                            if (key.includes("نام و نام خانوادگی")) fullName = userRow[key];
-                            if (key.includes("شماره دانشجویی")) studentId = userRow[key];
-                        }
+                    if(userRowArray) {
+                        // ستون C در جاوااسکریپت می‌شود ایندکس 2
+                        // ستون D می‌شود ایندکس 3
+                        let fullName = userRowArray[2]; 
+                        let studentId = userRowArray[3]; 
                         
                         if(fullName || studentId) {
                             $('#user-info-display').html(`
@@ -390,7 +419,7 @@
                         }
                     }
                 }
-            }, 800); // 800 میلی‌ثانیه تاخیر تا پردازش اصلی لاگین تمام شود
+            }, 800); 
         });
 
         // اجرای انیمیشن 3 ثانیه‌ای و آپدیت خودکار گراف‌ها هنگام تغییر تب
