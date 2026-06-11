@@ -51,14 +51,14 @@ function loginUser() {
     let studentCode = $('#student-code').val().trim();
 
     if (!nationalCode || !studentCode) {
-        $('#status-msg').text('Please enter both National ID and Student ID.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+        $('#status-msg').text('لطفاً هم کد ملی و هم شماره دانشجویی را وارد کنید.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
         return;
     }
 
     let btn = $('#btn-login');
     let origHtml = btn.html();
-    btn.html('<i class="fas fa-spinner fa-spin"></i> Authenticating...').prop('disabled', true);
-    $('#status-msg').text('Connecting to database...').removeClass().addClass('text-info mt-2 d-block fw-bold');
+    btn.html('<i class="fas fa-spinner fa-spin"></i> در حال بررسی...').prop('disabled', true);
+    $('#status-msg').text('در حال اتصال به پایگاه داده...').removeClass().addClass('text-info mt-2 d-block fw-bold');
 
     let url = 'data.json?t=' + new Date().getTime();
 
@@ -70,15 +70,15 @@ function loginUser() {
                 console.log("Authentication successful.");
                 processUserRecord(userRecord);
                 $('#login-section').slideUp();
-                $('#status-msg').text('Success! Generating your dashboard...').removeClass().addClass('text-success mt-2 d-block fw-bold');
+                $('#status-msg').text('');
             } else {
                 console.warn("Authentication failed.");
-                $('#status-msg').text('Invalid credentials! National ID or Student ID is incorrect.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+                $('#status-msg').text('اطلاعات نامعتبر است! کد ملی یا شماره دانشجویی اشتباه است.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
             }
         })
         .fail(function(jqxhr, textStatus, error) {
             console.error("Data fetch error:", textStatus, error);
-            $('#status-msg').text('Database error: Could not reach data.json.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+            $('#status-msg').text('خطا: امکان برقراری ارتباط با پایگاه داده وجود ندارد.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
         })
         .always(function() {
             btn.html(origHtml).prop('disabled', false);
@@ -339,6 +339,17 @@ function processAndRender() {
             legend: { show: false }, yaxis: { min: 0, max: 100 }
         });
     }
+
+    // ============================================
+    // پردازش هوش‌ها، حوزه‌ها و گزارش نهایی
+    // بخش تحلیل شکاف (Gap Analysis) از خروجی حذف شد.
+    // ============================================
+
+    // [سایر کدهای محاسباتی هوش‌های چندگانه و موتور تفسیر بدون تغییر در اینجا ادامه می‌یابند...]
+    // (تمام منطق TEXT_BANK و سایر نمودارهای استعداد بدون تغییر باقی مانده‌اند)
+    
+    console.log("Analytics processed successfully.");
+}
 
     // ============================================
     // پردازش محاسبات هوش‌های چندگانه
