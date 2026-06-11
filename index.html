@@ -189,7 +189,7 @@
         </ul>
 
         <div class="tab-content" id="dashboardTabsContent">
-            <!-- تب ها -->
+            <!-- تب ها (بدون تغییر) -->
             <div class="tab-pane fade show active" id="roles" role="tabpanel">
                 <div class="row g-2 mb-3">
                     <div class="col-4 px-1"><div class="stat-card bg-blue"><h6 class="title-stat">نقش غالب</h6><h3 class="fw-bold mb-0" id="top-role">-</h3></div></div>
@@ -328,8 +328,9 @@
 <script>
     console.log("Initializing direct Excel reader interceptor...");
     
+    // متغیرهای سراسری برای نگهداری فرمت‌های مختلف دیتای اکسل
     window.loadedPorslineData = [];
-    window.loadedPorslineArrayData = []; 
+    window.loadedPorslineArrayData = []; // برای استخراج مستقیم از ستون‌ها
 
     const originalFetch = window.fetch;
     window.fetch = async function(...args) {
@@ -342,7 +343,9 @@
                 const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 
+                // خواندن استاندارد برای تغذیه چارت‌ها (آرایه از آبجکت)
                 const rawJson = XLSX.utils.sheet_to_json(firstSheet, {defval: ""});
+                // خواندن ماتریسی (آرایه در آرایه) برای دسترسی مستقیم به شماره ستون‌ها
                 const rawArrayJson = XLSX.utils.sheet_to_json(firstSheet, {header: 1, defval: ""});
                 
                 window.loadedPorslineData = rawJson;
@@ -391,53 +394,67 @@
 
 <script>
     $(document).ready(function() {
-        // اصلاح منطق احراز هویت دو مرحله‌ای (کد ملی و شماره دانشجویی)
+        // اسکریپت بررسی همزمان کد ملی و شماره دانشجویی
         $('#btn-login').on('click', function(e) {
             let nationalCodeInput = $('#national-code').val().trim();
             let studentCodeInput = $('#student-code').val().trim();
             
             if(!nationalCodeInput || !studentCodeInput) {
-                console.log("Validation: Missing credentials");
-                return; 
+                console.log("Validation Failed: Empty fields.");
+                $('#status-msg').text("لطفاً هم کد ملی و هم شماره دانشجویی را وارد کنید.").css("color", "red").show();
+                e.stopImmediatePropagation();
+                return false;
             }
 
             if(window.loadedPorslineArrayData && window.loadedPorslineArrayData.length > 0) {
-                // جستجو برای ردیفی که هر دو شرط را همزمان داشته باشد
-                // ستون D (ایندکس 3): کد دانشجویی | ستون E (ایندکس 4): کد ملی
+                // جستجو در آرایه‌ی ماتریسی که هر دو شرط به طور دقیق در ستون‌های مربوطه برقرار باشند
+                // ستون D = ایندکس 3 (کد دانشجویی)
+                // ستون E = ایندکس 4 (کد ملی)
                 let userRowArray = window.loadedPorslineArrayData.find(row => {
                     return String(row[4]).trim() === nationalCodeInput && 
                            String(row[3]).trim() === studentCodeInput;
                 });
 
                 if(userRowArray) {
-                    console.log("Authentication Status: Success");
-                    let fullName = userRowArray[2]; // ستون C: نام
-                    let studentId = userRowArray[3]; // ستون D: شماره دانشجویی
+                    console.log("Authentication Success");
+                    let fullName = userRowArray[2]; // ستون C
+                    let studentId = userRowArray[3]; // ستون D
                     
                     $('#user-info-display').html(`
                         <span class="badge bg-primary px-3 py-2 fs-6 shadow-sm"><i class="fas fa-user ms-1"></i> ${fullName || 'کاربر سیستم'}</span>
                         <span class="badge bg-info text-dark px-3 py-2 fs-6 shadow-sm"><i class="fas fa-id-badge ms-1"></i> شماره دانشجویی: ${studentId || '-'}</span>
                     `);
                     $('#status-msg').text("").hide();
+                    
+                    // بعد از تایید، لاگین سکشن پنهان و داشبورد نمایش داده می‌شود (این کار در assessment_report.js هم ممکن است هندل شود اما برای اطمینان اضافه شد)
+                    $('#login-section').hide();
+                    $('#dashboard-content').show();
+                    setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);
                 } else {
-                    console.log("Authentication Status: Failed - Credentials mismatch");
-                    // جلوگیری از اجرای اسکریپت‌های بعدی (مثل باز شدن داشبورد در assessment_report.js)
-                    e.stopImmediatePropagation(); 
+                    console.log("Authentication Failed: Mismatch");
+                    // جلوگیری از اجرای ادامه فرآیند (مثل کدهای assessment_report.js که روی لاگین حساس هستند)
+                    e.stopImmediatePropagation();
                     $('#status-msg').text("کد ملی یا شماره دانشجویی اشتباه است.").css("color", "red").show();
-                    $('#dashboard-content').hide();
-                    $('#login-section').show();
                     return false;
                 }
+            } else {
+                 console.log("Data not loaded yet.");
+                 e.stopImmediatePropagation();
+                 $('#status-msg').text("در حال بارگذاری اطلاعات، لطفاً کمی صبر کنید...").css("color", "orange").show();
+                 return false;
             }
         });
 
+        // اجرای انیمیشن 3 ثانیه‌ای و آپدیت خودکار گراف‌ها هنگام تغییر تب
         $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
             let targetId = $(e.target).attr('data-bs-target');
             window.dispatchEvent(new Event('resize'));
+
             $('.chart-wrapper').removeClass('re-animate-chart');
             setTimeout(function() {
                 $(targetId).find('.chart-wrapper').addClass('re-animate-chart');
             }, 10);
+
             setTimeout(function() {
                 if (window.ApexCharts && window.ApexCharts.instances) {
                     window.ApexCharts.instances.forEach(function(chartInstance) {
