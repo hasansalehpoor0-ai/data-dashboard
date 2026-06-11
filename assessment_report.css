@@ -132,16 +132,17 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
     height: 100%;
     overflow: hidden;
-    padding: 20px;
+    padding: 25px; /* افزایش پدینگ دور تا دور */
 }
 
 .report-card {
     border: 1px solid #eef2f7;
     border-radius: 14px;
-    margin-bottom: 15px;
+    margin-bottom: 20px; /* فاصله بین کارت ها بیشتر شد */
     box-shadow: 0 2px 10px rgba(0,0,0,0.02);
     overflow: hidden;
     background: #ffffff;
+    padding-bottom: 15px; /* فاصله از پایین کارت */
 }
 
 .report-card-header { 
@@ -160,12 +161,12 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 .reasoning-box { 
     background: #f8faff; 
     border-right: 4px solid #4e73df; 
-    padding: 1.25rem 1.5rem; 
+    padding: 1.5rem 2rem; /* افزایش پدینگ داخلی برای فاصله گرفتن متن از حاشیه */
     border-radius: 10px; 
     font-size: 0.85rem; 
     line-height: 2.1; 
-    margin: 15px auto;
-    width: 96%;
+    margin: 20px auto; /* فاصله از بالا و پایین */
+    width: 90%; /* عرض کاهش یافت تا از کناره ها فاصله بگیرد */
     color: #3b4252;
     text-align: justify;
     box-shadow: 0 2px 6px rgba(0,0,0,0.02);
@@ -237,14 +238,14 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
     }
     
     /* بهینه‌سازی بخش تفسیر برای موبایل */
-    .report-wrapper { padding: 12px !important; }
+    .report-wrapper { padding: 15px !important; }
     
     .reasoning-box { 
         font-size: 0.8rem; 
         line-height: 1.9;
         padding: 15px; 
-        margin: 12px auto; 
-        width: 98%;
+        margin: 15px auto; 
+        width: 95%; /* در موبایل کمی عریض تر اما همچنان با فاصله */
     }
     .report-card-header { padding: 12px 15px; }
 }
