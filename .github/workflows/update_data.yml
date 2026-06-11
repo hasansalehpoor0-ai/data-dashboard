@@ -5,7 +5,6 @@ on:
     - cron: '*/5 * * * *'
   workflow_dispatch:
 
-# این بخش برای اعطای دسترسی نوشتن (Push) به ربات گیت‌هاب اضافه شده است
 permissions:
   contents: write
 
@@ -14,10 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
@@ -28,12 +29,12 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
           git add .
           if [ -z "$(git status --porcelain)" ]; then
             echo "No changes to commit"
           else
             git commit -m "Auto-update data from Porsline"
-            git push
+            git push origin HEAD:main
           fi
