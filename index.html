@@ -308,6 +308,58 @@
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+<!-- اسکریپت جاوا اسکریپت سفارشی برای خواندن مستقیم اکسل به جای جیسون -->
+<script>
+    console.log("Initializing direct Excel reader interceptor...");
+    
+    // ۱. ره‌گیری درخواست‌های Fetch
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+        let url = args[0];
+        if (typeof url === 'string' && url.includes('data.json')) {
+            console.log("Loading data from porsline_data.xlsx instead of data.json (Fetch API)...");
+            try {
+                const response = await originalFetch('porsline_data.xlsx');
+                const arrayBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(firstSheet, {defval: ""});
+                console.log("Excel file loaded and parsed successfully.");
+                return new Response(JSON.stringify(json), { 
+                    status: 200, 
+                    headers: { 'Content-Type': 'application/json' } 
+                });
+            } catch (error) {
+                console.error("Error reading Excel file via fetch:", error);
+            }
+        }
+        return originalFetch.apply(this, args);
+    };
+
+    // ۲. ره‌گیری درخواست‌های jQuery AJAX (اگر کدهای شما با جی‌کوئری فایل را می‌خوانند)
+    if (typeof jQuery !== 'undefined') {
+        $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
+            if (options.url && options.url.includes('data.json')) {
+                console.log("Intercepting jQuery request for data.json, loading porsline_data.xlsx instead...");
+                options.url = 'porsline_data.xlsx';
+                options.xhrFields = { responseType: 'arraybuffer' };
+                options.converters['* text'] = function(arrayBuffer) {
+                    try {
+                        const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const json = XLSX.utils.sheet_to_json(firstSheet, {defval: ""});
+                        console.log("Excel file loaded and parsed successfully via jQuery.");
+                        return JSON.stringify(json);
+                    } catch (error) {
+                        console.error("Error reading Excel file via jQuery:", error);
+                        return "[]";
+                    }
+                };
+            }
+        });
+    }
+</script>
+
 <script src="data_config.js"></script>
 <script src="text_bank.js"></script>
 <script src="assessment_report.js"></script>
