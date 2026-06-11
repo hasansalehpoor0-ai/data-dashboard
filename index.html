@@ -16,7 +16,7 @@
                 animations: {
                     enabled: true,
                     easing: 'easeinout',
-                    speed: 2000, 
+                    speed: 1500, 
                     animateGradually: {
                         enabled: true,
                         delay: 150
@@ -174,7 +174,7 @@
             <div class="tab-pane fade" id="smart" role="tabpanel">
                 <div class="row">
                     <div class="col-12">
-                        <div class="report-wrapper p-2 border-light-subtle">
+                        <div class="report-wrapper border-light-subtle">
                             <h5 class="section-title d-flex justify-content-center pb-2 mb-3 fw-bold fs-6"><i class="fas fa-robot text-primary ms-2"></i>تفسیر هوشمند شکاف‌ها</h5>
                             <div id="final-report" class="row g-3 justify-content-center"></div>
                         </div>
@@ -225,36 +225,31 @@
 
 <script>
     $(document).ready(function() {
-        // اجرای انیمیشن و آپدیت خودکار گراف‌ها هنگام تغییر تب
+        // رفع قطعی اجرای انیمیشن هنگام تغییر تب‌ها
         $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
             let targetId = $(e.target).attr('data-bs-target');
-            
-            // رفع مشکل عرض نمودارها
-            window.dispatchEvent(new Event('resize'));
+            window.dispatchEvent(new Event('resize')); // فیکس عرض اولیه نمودارها
 
-            // اعمال انیمیشن CSS
-            $('.chart-wrapper').removeClass('re-animate-chart');
-            setTimeout(function() {
-                $(targetId).find('.chart-wrapper').addClass('re-animate-chart');
-            }, 10);
-
-            // راه حل قطعی: آپدیت کردن دیتای نمودار با مقادیر خودش برای وادار کردن به رندر مجدد
-            setTimeout(function() {
-                if (window.ApexCharts && window.ApexCharts.instances) {
-                    window.ApexCharts.instances.forEach(function(chartInstance) {
-                        // اگر نمودار داخل تبی بود که الان باز شده است
-                        if ($(chartInstance.el).closest(targetId).length > 0) {
-                            try {
-                                // دریافت مقادیر فعلی نمودار و تغذیه مجدد آن
-                                let currentSeries = chartInstance.w.config.series;
+            if (window.ApexCharts && window.ApexCharts.instances) {
+                window.ApexCharts.instances.forEach(function(chartInstance) {
+                    if ($(chartInstance.el).closest(targetId).length > 0) {
+                        try {
+                            let currentSeries = chartInstance.w.config.series;
+                            
+                            // ترفند: ابتدا دیتا را خالی می‌کنیم تا کتابخانه نمودار را پاک کند
+                            chartInstance.updateSeries([]);
+                            
+                            // سپس با یک وقفه بسیار کوتاه دیتا را برمی‌گردانیم تا انیمیشن از صفر و پرقدرت اجرا شود
+                            setTimeout(function() {
                                 chartInstance.updateSeries(currentSeries, true);
-                            } catch(err) {
-                                console.warn("Chart update minor issue", err);
-                            }
+                            }, 50); 
+                            
+                        } catch(err) {
+                            console.warn("Chart update minor issue", err);
                         }
-                    });
-                }
-            }, 100); // 100 میلی ثانیه تاخیر تا المان ها کاملا در تب جدید جاگیر شوند
+                    }
+                });
+            }
         });
         
         $('#validationModal').on('shown.bs.modal', function () {
