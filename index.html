@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پرسشنامه استعداد هنری کانون33 فاها</title>
+    <title>پرسشنامه استعداد هنری کانون فاها</title>
     
     <link rel="stylesheet" href="assessment_report.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <script>
-        // تنظیمات گلوبال انیمیشن‌های ApexCharts
+        // تنظیمات ۳ ثانیه‌ای برای کتابخانه نمودارها
         window.Apex = {
             chart: {
                 animations: {
                     enabled: true,
                     easing: 'easeinout',
-                    speed: 800,
+                    speed: 3000, // زمان رسم نمودارها 3 ثانیه
                     animateGradually: {
                         enabled: true,
                         delay: 150
                     },
                     dynamicAnimation: {
                         enabled: true,
-                        speed: 500
+                        speed: 1000
                     }
                 }
             }
@@ -32,21 +32,15 @@
 </head>
 <body>
 
-<div class="dashboard-container px-2 px-md-4 py-3">
+<div class="dashboard-container">
     
     <div class="d-flex flex-column align-items-center mb-4 bg-white p-3 p-md-4 rounded-4 shadow-sm border border-light-subtle text-center">
-        
         <h4 class="mb-3 fw-bold text-dark fs-5 d-flex align-items-center justify-content-center flex-wrap gap-2">
-            <span class="bg-primary bg-opacity-10 text-primary p-2 rounded-3">
-                <i class="fas fa-chart-pie"></i>
-            </span>
+            <span class="bg-primary bg-opacity-10 text-primary p-2 rounded-3"><i class="fas fa-chart-pie"></i></span>
             داشبورد تحلیل جامع پرسشنامه ۹۰ آیتمی
         </h4>
         
-        <div class="mb-3">
-            <span id="mode-badge" class="badge bg-secondary fw-normal fs-6">منتظر فایل...</span>
-        </div>
-        
+        <div class="mb-3"><span id="mode-badge" class="badge bg-secondary fw-normal fs-6">منتظر فایل...</span></div>
         <div id="user-info-display" class="mb-3 d-flex flex-wrap gap-2 justify-content-center w-100"></div>
         
         <div class="d-flex gap-2 justify-content-center flex-wrap">
@@ -69,40 +63,15 @@
     <div id="dashboard-content" style="display: none;">
         
         <ul class="nav nav-pills custom-tabs justify-content-center mx-auto" id="dashboardTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="roles-tab" data-bs-toggle="pill" data-bs-target="#roles" type="button" role="tab" aria-selected="true">
-                    <i class="fas fa-users-cog ms-1"></i> نقش‌ها
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="intelligence-tab" data-bs-toggle="pill" data-bs-target="#intelligence" type="button" role="tab" aria-selected="false">
-                    <i class="fas fa-brain ms-1"></i> هوش‌ها
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="talent-tab" data-bs-toggle="pill" data-bs-target="#talent" type="button" role="tab" aria-selected="false">
-                    <i class="fas fa-star ms-1"></i> تحلیل استعداد
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="interest-tab" data-bs-toggle="pill" data-bs-target="#interest" type="button" role="tab" aria-selected="false">
-                    <i class="fas fa-heart ms-1"></i> علاقه
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="gaps-tab" data-bs-toggle="pill" data-bs-target="#gaps" type="button" role="tab" aria-selected="false">
-                    <i class="fas fa-chart-scatter ms-1"></i> تحلیل شکاف
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="smart-tab" data-bs-toggle="pill" data-bs-target="#smart" type="button" role="tab" aria-selected="false">
-                    <i class="fas fa-robot ms-1"></i> تفسیر هوشمند
-                </button>
-            </li>
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#roles" type="button"><i class="fas fa-users-cog ms-1"></i> نقش‌ها</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#intelligence" type="button"><i class="fas fa-brain ms-1"></i> هوش‌ها</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#talent" type="button"><i class="fas fa-star ms-1"></i> تحلیل استعداد</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#interest" type="button"><i class="fas fa-heart ms-1"></i> علاقه</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#gaps" type="button"><i class="fas fa-chart-scatter ms-1"></i> تحلیل شکاف</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#smart" type="button"><i class="fas fa-robot ms-1"></i> تفسیر هوشمند</button></li>
         </ul>
 
         <div class="tab-content" id="dashboardTabsContent">
-            
             <!-- تب نقش‌ها -->
             <div class="tab-pane fade show active" id="roles" role="tabpanel">
                 <div class="row g-2 mb-4">
@@ -201,9 +170,8 @@
             <div class="tab-pane fade" id="smart" role="tabpanel">
                 <div class="row">
                     <div class="col-12">
-                        <div class="report-wrapper p-2">
-                            <h5 class="section-title d-flex justify-content-center pb-3 mb-3 fw-bold"><i class="fas fa-robot text-primary ms-2"></i>تفسیر هوشمند شکاف‌ها</h5>
-                            <!-- محتوای این بخش توسط جاوااسکریپت و با استایل‌های جدید .report-card پر می‌شود -->
+                        <div class="p-2 border-0">
+                            <h5 class="section-title d-flex justify-content-center pb-3 mb-3 fw-bold text-dark"><i class="fas fa-robot text-primary ms-2"></i>تفسیر هوشمند شکاف‌ها</h5>
                             <div id="final-report" class="row g-3 justify-content-center"></div>
                         </div>
                     </div>
@@ -241,27 +209,33 @@
     </div>
 </div>
 
-<!-- اسکریپت‌های پایه -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-<!-- فایل‌های دیتای پروژه -->
 <script src="data_config.js"></script>
 <script src="text_bank.js"></script>
 <script src="assessment_report.js"></script>
 
 <script>
     $(document).ready(function() {
-        // تحریک نمودارهای ApexCharts هنگام جابجایی تب با دو مرحله تاخیر برای اطمینان از رندر کامل
-        $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
-            setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);
-            setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 300);
+        // ایجاد افکت ۳ ثانیه‌ای برای محتویات تب هنگام کلیک
+        $('button[data-bs-toggle="pill"]').on('show.bs.tab', function (e) {
+            let targetId = $(e.target).attr('data-bs-target');
+            
+            // حذف کلاس انیمیشن از تمامی تب‌ها
+            $('.stat-card, .chart-card, .report-card').removeClass('animate-on-tab');
+            
+            // اضافه کردن دوباره کلاس انیمیشن به تب فعال با یک تاخیر بسیار کوتاه برای Reset شدن
+            setTimeout(function() {
+                $(targetId).find('.stat-card, .chart-card, .report-card').addClass('animate-on-tab');
+                window.dispatchEvent(new Event('resize')); // رندر مجدد عرض نمودارها
+            }, 50);
         });
         
         $('#validationModal').on('shown.bs.modal', function () {
-            setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 100);
+            setTimeout(function() { window.dispatchEvent(new Event('resize')); }, 50);
         });
     });
 </script>
