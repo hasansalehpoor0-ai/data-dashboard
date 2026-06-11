@@ -5,12 +5,14 @@ from urllib.error import HTTPError, URLError
 import sys
 
 # Configuration
-API_KEY = os.environ.get('PORSLINE_API_KEY')
+# سعی می کند کلید را از گیت هاب بخواند، در غیر این صورت از کلیدی که دادید استفاده می کند
+API_KEY = os.environ.get('PORSLINE_API_KEY', '01a1f7586fc963fa639463569b827a78f78f00ff')
 SURVEY_ID = '2533005'
 OUTPUT_FILE = 'data.json'
 
 def fetch_data():
-    url = f'https://api.porsline.ir/v1/surveys/{SURVEY_ID}/responses/'
+    # آدرس API پرس لاین اصلاح شد
+    url = f'https://survey.porsline.ir/api/v1/surveys/{SURVEY_ID}/responses/'
     headers = {
         'Authorization': f'API-Key {API_KEY}',
         'Content-Type': 'application/json'
