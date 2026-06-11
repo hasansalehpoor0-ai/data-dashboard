@@ -10,13 +10,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <script>
-        // تنظیمات 3 ثانیه‌ای برای کتابخانه نمودارها
+        // تنظیمات پایه برای کتابخانه نمودارها
         window.Apex = {
             chart: {
                 animations: {
                     enabled: true,
                     easing: 'easeinout',
-                    speed: 2000, // دقیقا 3 ثانیه
+                    speed: 2000, 
                     animateGradually: {
                         enabled: true,
                         delay: 150
@@ -32,9 +32,9 @@
 </head>
 <body>
 
-<div class="dashboard-container px-2 px-md-4 py-3">
+<div class="dashboard-container">
     
-    <!-- هدر بالای صفحه، تمیز و مینیمال شده مخصوص موبایل -->
+    <!-- هدر بالای صفحه -->
     <div class="top-header-card d-flex flex-column align-items-center mb-3 bg-white p-3 p-md-4 rounded-4 shadow-sm border border-light-subtle text-center">
         
         <h4 class="mb-2 fw-bold text-dark fs-6 d-flex align-items-center justify-content-center flex-wrap gap-2">
@@ -48,7 +48,7 @@
         
         <div id="user-info-display" class="mb-3 d-flex flex-wrap gap-2 justify-content-center w-100 text-muted small fw-medium"></div>
         
-        <div class="d-flex gap-2 justify-content-center flex-wrap">
+        <div class="d-flex gap-2 justify-content-center flex-wrap w-md-auto">
             <button id="btn-normalize" class="btn btn-warning btn-sm-mobile text-dark fw-bold shadow-sm rounded-3" style="display: none;">
                 <i class="fas fa-balance-scale ms-1"></i> استاندارد Z-Score
             </button>
@@ -67,7 +67,7 @@
 
     <div id="dashboard-content" style="display: none;">
         
-        <ul class="nav nav-pills custom-tabs justify-content-center mx-auto" id="dashboardTabs" role="tablist">
+        <ul class="nav nav-pills custom-tabs mx-auto" id="dashboardTabs" role="tablist">
             <li class="nav-item"><button class="nav-link active" id="roles-tab" data-bs-toggle="pill" data-bs-target="#roles" type="button"><i class="fas fa-users-cog ms-1"></i> نقش‌ها</button></li>
             <li class="nav-item"><button class="nav-link" id="intelligence-tab" data-bs-toggle="pill" data-bs-target="#intelligence" type="button"><i class="fas fa-brain ms-1"></i> هوش‌ها</button></li>
             <li class="nav-item"><button class="nav-link" id="talent-tab" data-bs-toggle="pill" data-bs-target="#talent" type="button"><i class="fas fa-star ms-1"></i> تحلیل استعداد</button></li>
@@ -77,6 +77,7 @@
         </ul>
 
         <div class="tab-content" id="dashboardTabsContent">
+            <!-- تب نقش ها -->
             <div class="tab-pane fade show active" id="roles" role="tabpanel">
                 <div class="row g-2 mb-3">
                     <div class="col-4 px-1"><div class="stat-card bg-blue"><h6 class="title-stat">نقش غالب</h6><h3 class="fw-bold mb-0" id="top-role">-</h3></div></div>
@@ -91,6 +92,7 @@
                 </div>
             </div>
 
+            <!-- تب هوش ها -->
             <div class="tab-pane fade" id="intelligence" role="tabpanel">
                 <div class="row g-2 mb-3">
                     <div class="col-4 px-1"><div class="stat-card bg-blue"><h6 class="title-stat">هوش غالب</h6><h3 class="fw-bold mb-0" id="top-mi-role">-</h3></div></div>
@@ -105,6 +107,7 @@
                 </div>
             </div>
 
+            <!-- تب استعداد -->
             <div class="tab-pane fade" id="talent" role="tabpanel">
                 <div class="row g-2 mb-3">
                     <div class="col-4 px-1"><div class="stat-card bg-blue"><h6 class="title-stat">استعداد برتر</h6><h3 class="fw-bold mb-0" id="top-talent">-</h3></div></div>
@@ -131,6 +134,7 @@
                 </div>
             </div>
 
+            <!-- تب علاقه -->
             <div class="tab-pane fade" id="interest" role="tabpanel">
                 <div class="row g-2 mb-3">
                     <div class="col-4 px-1"><div class="stat-card bg-blue"><h6 class="title-stat">بیشترین علاقه</h6><h3 class="fw-bold mb-0" id="top-interest">-</h3></div></div>
@@ -145,6 +149,7 @@
                 </div>
             </div>
 
+            <!-- تب شکاف -->
             <div class="tab-pane fade" id="gaps" role="tabpanel">
                 <div class="row g-3 mb-3">
                     <div class="col-xl-6 col-12">
@@ -165,6 +170,7 @@
                 </div>
             </div>
 
+            <!-- تب تفسیر هوشمند -->
             <div class="tab-pane fade" id="smart" role="tabpanel">
                 <div class="row">
                     <div class="col-12">
@@ -179,6 +185,7 @@
     </div>
 </div>
 
+<!-- مودال اعتبارسنجی -->
 <div class="modal fade" id="validationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow">
@@ -218,38 +225,36 @@
 
 <script>
     $(document).ready(function() {
-        // اجرای انیمیشن 3 ثانیه‌ای و آپدیت خودکار گراف‌ها هنگام تغییر تب
+        // اجرای انیمیشن و آپدیت خودکار گراف‌ها هنگام تغییر تب
         $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
             let targetId = $(e.target).attr('data-bs-target');
             
             // رفع مشکل عرض نمودارها
             window.dispatchEvent(new Event('resize'));
 
-            // اعمال انیمیشن 3 ثانیه ای CSS روی تمام چارت‌های تب جدید
+            // اعمال انیمیشن CSS
             $('.chart-wrapper').removeClass('re-animate-chart');
             setTimeout(function() {
                 $(targetId).find('.chart-wrapper').addClass('re-animate-chart');
             }, 10);
 
-            // اجبار کتابخانه ApexCharts برای پخش مجدد انیمیشن خودش در تب فعال
+            // راه حل قطعی: آپدیت کردن دیتای نمودار با مقادیر خودش برای وادار کردن به رندر مجدد
             setTimeout(function() {
                 if (window.ApexCharts && window.ApexCharts.instances) {
                     window.ApexCharts.instances.forEach(function(chartInstance) {
-                        // بررسی اینکه آیا این چارت داخل تبی است که کاربر الان باز کرده است؟
+                        // اگر نمودار داخل تبی بود که الان باز شده است
                         if ($(chartInstance.el).closest(targetId).length > 0) {
-                            // آپدیت تنظیمات چارت برای تریگر شدن انیمیشن داخلی
-                            chartInstance.updateOptions({
-                                chart: {
-                                    animations: {
-                                        enabled: true,
-                                        speed: 3000
-                                    }
-                                }
-                            }, false, true);
+                            try {
+                                // دریافت مقادیر فعلی نمودار و تغذیه مجدد آن
+                                let currentSeries = chartInstance.w.config.series;
+                                chartInstance.updateSeries(currentSeries, true);
+                            } catch(err) {
+                                console.warn("Chart update minor issue", err);
+                            }
                         }
                     });
                 }
-            }, 50);
+            }, 100); // 100 میلی ثانیه تاخیر تا المان ها کاملا در تب جدید جاگیر شوند
         });
         
         $('#validationModal').on('shown.bs.modal', function () {
