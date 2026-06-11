@@ -139,11 +139,11 @@
             <span id="mode-badge" class="badge bg-secondary fw-normal" style="font-size: 0.75rem;">در انتظار ورود...</span>
         </div>
         
-        <div id="user-info-display" class="mb-3 d-flex flex-wrap gap-2 justify-content-center w-100 text-muted small fw-bold"></div>
+        <div id="user-info-display" class="mb-3 d-flex flex-wrap gap-2 justify-content-center w-100 text-muted"></div>
         
         <!-- دکمه استانداردسازی -->
-        <div class="d-flex gap-2 justify-content-center flex-wrap mb-2">
-            <button id="btn-normalize" class="btn btn-warning btn-sm-mobile text-dark fw-bold shadow-sm rounded-3" style="display: none;">
+        <div class="d-flex gap-2 justify-content-center flex-wrap mb-2 mt-1">
+            <button id="btn-normalize" class="btn btn-action-normalize fw-bold" style="display: none;">
                 <i class="fas fa-balance-scale ms-1"></i> استاندارد Z-Score
             </button>
         </div>
@@ -184,7 +184,6 @@
             <li class="nav-item"><button class="nav-link" id="intelligence-tab" data-bs-toggle="pill" data-bs-target="#intelligence" type="button"><i class="fas fa-brain ms-1"></i> هوش‌ها</button></li>
             <li class="nav-item"><button class="nav-link" id="talent-tab" data-bs-toggle="pill" data-bs-target="#talent" type="button"><i class="fas fa-star ms-1"></i> تحلیل استعداد</button></li>
             <li class="nav-item"><button class="nav-link" id="interest-tab" data-bs-toggle="pill" data-bs-target="#interest" type="button"><i class="fas fa-heart ms-1"></i> علاقه</button></li>
-            <li class="nav-item"><button class="nav-link" id="gaps-tab" data-bs-toggle="pill" data-bs-target="#gaps" type="button"><i class="fas fa-chart-scatter ms-1"></i> تحلیل شکاف</button></li>
             <li class="nav-item"><button class="nav-link" id="smart-tab" data-bs-toggle="pill" data-bs-target="#smart" type="button"><i class="fas fa-robot ms-1"></i> تفسیر هوشمند</button></li>
         </ul>
 
@@ -255,26 +254,6 @@
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-balance-scale text-success"></i>علاقه در برابر خودکارآمدی</h6><div id="domainDivergingBarChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-dumbbell text-success"></i>شکاف بین علاقه و مهارت</h6><div id="interestDumbbellChart" class="chart-wrapper"></div></div></div>
                     <div class="col-xl-6 col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-fire text-success"></i>نقشه حرارتی حوزه‌های بحرانی</h6><div id="interestHeatmapChart" class="chart-wrapper"></div></div></div>
-                </div>
-            </div>
-
-            <div class="tab-pane fade" id="gaps" role="tabpanel">
-                <div class="row g-3 mb-3">
-                    <div class="col-xl-6 col-12">
-                        <div class="chart-card">
-                            <h6 class="chart-title"><i class="fas fa-chart-scatter text-danger"></i>تحلیل شکاف: استعداد در برابر اعتماد</h6>
-                            <div id="bubbleChart" class="chart-wrapper"></div>
-                        </div>
-                    </div>
-                    <div class="col-xl-6 col-12">
-                        <div class="chart-card">
-                            <h6 class="chart-title"><i class="fas fa-exchange-alt text-danger"></i>شکاف اقدام: علاقه در برابر خودباوری</h6>
-                            <div id="actionGapChart" class="chart-wrapper"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-12"><div class="chart-card"><h6 class="chart-title"><i class="fas fa-sort-amount-down text-dark"></i>اولویت‌های توسعه (DPI)</h6><div id="dpiChart" class="chart-wrapper"></div></div></div>
                 </div>
             </div>
 
@@ -411,10 +390,11 @@
                         let fullName = userRowArray[2]; 
                         let studentId = userRowArray[3]; 
                         
+                        // اعمال رنگ‌های فرعی (ثانویه) برای باکس‌های نام و شماره دانشجویی
                         if(fullName || studentId) {
                             $('#user-info-display').html(`
-                                <span class="badge bg-primary px-3 py-2 fs-6 shadow-sm"><i class="fas fa-user ms-1"></i> ${fullName || 'کاربر سیستم'}</span>
-                                <span class="badge bg-info text-dark px-3 py-2 fs-6 shadow-sm"><i class="fas fa-id-badge ms-1"></i> شماره دانشجویی: ${studentId || '-'}</span>
+                                <span class="badge bg-light text-secondary border px-3 py-2 fs-6 shadow-sm"><i class="fas fa-user text-muted ms-1"></i> ${fullName || 'کاربر سیستم'}</span>
+                                <span class="badge bg-light text-secondary border px-3 py-2 fs-6 shadow-sm"><i class="fas fa-id-badge text-muted ms-1"></i> شماره دانشجویی: ${studentId || '-'}</span>
                             `);
                         }
                     }
