@@ -125,23 +125,33 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 .chart-title i { margin-left: 8px; color: #4e73df; }
 
 /* --- AI Interpretation Cards (Smart Section) --- */
-.report-card, .report-wrapper { 
+.report-wrapper { 
     border: none; 
     border-radius: 16px; 
     background: #fff;
     box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
     height: 100%;
     overflow: hidden;
+    padding: 20px;
+}
+
+.report-card {
+    border: 1px solid #eef2f7;
+    border-radius: 14px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    overflow: hidden;
+    background: #ffffff;
 }
 
 .report-card-header { 
-    padding: 12px 15px; 
+    padding: 15px 20px; 
     border-bottom: 1px solid #f1f3f9; 
     background-color: #fcfcfd;
 }
 
 .report-card-header h5 {
-    font-size: 0.9rem !important;
+    font-size: 0.95rem !important;
     font-weight: bold;
     margin: 0;
     color: #2c3e50;
@@ -149,14 +159,16 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
 
 .reasoning-box { 
     background: #f8faff; 
-    border-right: 3px solid #4e73df; 
-    padding: 12px; 
-    border-radius: 8px; 
+    border-right: 4px solid #4e73df; 
+    padding: 1.25rem 1.5rem; 
+    border-radius: 10px; 
     font-size: 0.85rem; 
-    line-height: 1.8; 
-    margin: 10px;
-    color: #495057;
+    line-height: 2.1; 
+    margin: 15px auto;
+    width: 96%;
+    color: #3b4252;
     text-align: justify;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
 /* --- Responsive Adjustments (Mobile Focus) --- */
@@ -177,11 +189,10 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
         flex-direction: column;
     }
     
-    /* چینش دکمه ها در موبایل */
     .btn-sm-mobile { 
         padding: 8px 15px; 
         font-size: 0.85rem; 
-        width: 100%; /* دکمه ها تمام عرض شوند */
+        width: 100%; 
         margin-bottom: 5px;
     }
     .d-flex.gap-2.justify-content-center.flex-wrap {
@@ -189,7 +200,6 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
         width: 100%;
     }
     
-    /* تنظیمات کارت‌های آمار برای موبایل */
     .stat-card { 
         padding: 10px 4px; 
         margin-bottom: 0px; 
@@ -226,7 +236,17 @@ body, h1, h2, h3, h4, h5, h6, p, span, div, button, .apexcharts-text {
         font-size: 0.75rem; 
     }
     
-    .reasoning-box { font-size: 0.8rem; padding: 10px; margin: 8px 5px; }
+    /* بهینه‌سازی بخش تفسیر برای موبایل */
+    .report-wrapper { padding: 12px !important; }
+    
+    .reasoning-box { 
+        font-size: 0.8rem; 
+        line-height: 1.9;
+        padding: 15px; 
+        margin: 12px auto; 
+        width: 98%;
+    }
+    .report-card-header { padding: 12px 15px; }
 }
 
 .apexcharts-canvas { margin: 0 auto; }
