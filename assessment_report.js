@@ -39,7 +39,6 @@ $(document).ready(function() {
         loginUser();
     });
 
-    // اضافه کردن قابلیت ورود با فشردن دکمه Enter
     $('#national-code, #student-code').keypress(function(e) {
         if (e.which === 13) {
             loginUser();
@@ -51,17 +50,16 @@ function loginUser() {
     let nationalCode = $('#national-code').val().trim();
     let studentCode = $('#student-code').val().trim();
 
-    if (!nationalCode) {
-        $('#status-msg').text('لطفاً کد ملی را وارد کنید.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+    if (!nationalCode || !studentCode) {
+        $('#status-msg').text('Please enter both National ID and Student ID.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
         return;
     }
 
     let btn = $('#btn-login');
     let origHtml = btn.html();
-    btn.html('<i class="fas fa-spinner fa-spin"></i> در حال احراز هویت...').prop('disabled', true);
-    $('#status-msg').text('در حال دریافت اطلاعات...').removeClass().addClass('text-info mt-2 d-block fw-bold');
+    btn.html('<i class="fas fa-spinner fa-spin"></i> Authenticating...').prop('disabled', true);
+    $('#status-msg').text('Connecting to database...').removeClass().addClass('text-info mt-2 d-block fw-bold');
 
-    // استفاده از cache-buster برای اطمینان از دریافت آخرین تغییرات گیت‌هاب
     let url = 'data.json?t=' + new Date().getTime();
 
     $.getJSON(url)
@@ -69,17 +67,18 @@ function loginUser() {
             let userRecord = checkUserCredentials(data, nationalCode, studentCode);
 
             if (userRecord) {
+                console.log("Authentication successful.");
                 processUserRecord(userRecord);
                 $('#login-section').slideUp();
-                $('#status-msg').text('ورود موفق! در حال پردازش کارنامه...').removeClass().addClass('text-success mt-2 d-block fw-bold');
+                $('#status-msg').text('Success! Generating your dashboard...').removeClass().addClass('text-success mt-2 d-block fw-bold');
             } else {
-                $('#status-msg').text('کاربری با این مشخصات یافت نشد!').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+                console.warn("Authentication failed.");
+                $('#status-msg').text('Invalid credentials! National ID or Student ID is incorrect.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
             }
         })
         .fail(function(jqxhr, textStatus, error) {
-            let err = textStatus + ", " + error;
-            console.error("Fetch JSON Error: " + err);
-            $('#status-msg').text('خطا در دریافت اطلاعات (فایل data.json در دسترس نیست).').removeClass().addClass('text-danger mt-2 d-block fw-bold');
+            console.error("Data fetch error:", textStatus, error);
+            $('#status-msg').text('Database error: Could not reach data.json.').removeClass().addClass('text-danger mt-2 d-block fw-bold');
         })
         .always(function() {
             btn.html(origHtml).prop('disabled', false);
@@ -87,30 +86,26 @@ function loginUser() {
 }
 
 function checkUserCredentials(data, nationalCode, studentCode) {
-    // تابع جستجوی انعطاف‌پذیر: تطبیق کلیدهای احتمالی کد ملی
+    // طبق تصویر ۲: ایندکس ۳ شماره دانشجویی و ایندکس ۴ کد ملی است
     return data.find(row => {
-        let recordNational = row['کد ملی'] || row['کدملی'] || row['national_code'] || row['NationalCode'];
+        let values = Object.values(row);
+        let recordStudent = String(values[3] || "").trim();
+        let recordNational = String(values[4] || "").trim();
         
-        // اگر نام فیلد در JSON متفاوت باشد، جستجو درون تمام مقادیر آن سطر (به عنوان روش پشتیبان)
-        if (!recordNational) {
-            let values = Object.values(row);
-            if (values.includes(nationalCode)) return true;
-        }
-        
-        return recordNational == nationalCode;
+        return recordNational === nationalCode && recordStudent === studentCode;
     });
 }
 
 function processUserRecord(userRecord) {
     let tempGlobalData = {};
+    let values = Object.values(userRecord);
 
-    // استخراج اطلاعات هویتی کاربر
-    tempGlobalData['C'] = userRecord['نام و نام خانوادگی'] || userRecord['نام'] || 'کاربر سیستم';
-    tempGlobalData['D'] = userRecord['کد ملی'] || userRecord['کدملی'] || userRecord['NationalCode'] || '';
-    tempGlobalData['E'] = userRecord['شماره دانشجویی'] || userRecord['کد دانشجویی'] || userRecord['StudentCode'] || '';
+    // استخراج اطلاعات هویتی بر اساس ایندکس‌ها
+    tempGlobalData['NAME'] = values[2] || 'User'; 
+    tempGlobalData['STUDENT_ID'] = values[3] || '';
+    tempGlobalData['NATIONAL_ID'] = values[4] || '';
 
-    // استخراج هوشمند پاسخ‌های 90 سوال
-    // این حلقه مقادیر متنی را در فایل کاربر پیدا کرده و تبدیل به عدد می‌کند.
+    // استخراج پاسخ‌های ۹۰ سوال
     let answers = [];
     for (let key in userRecord) {
         let val = userRecord[key];
@@ -120,27 +115,23 @@ function processUserRecord(userRecord) {
                 answers.push(SCORE_MAPPING[trimmed]);
             }
         } else if (typeof val === 'number' && val >= 1 && val <= 5) {
-            // در صورتی که مستقیماً عدد دریافت شود
             answers.push(val);
         }
     }
 
-    // انتساب مقادیر به کدهای استاندارد سوالات
     for (let i = 0; i < QUESTION_CODES.length; i++) {
         tempGlobalData[QUESTION_CODES[i]] = answers[i] !== undefined ? answers[i] : 0;
     }
 
     globalData = tempGlobalData;
 
-    // استخراج اطلاعات کاربری برای نمایش در هدر
-    let userInfoName = globalData['C'];
-    let userInfoD = globalData['D'];
-    let userInfoE = globalData['E'];
-    
+    // نمایش مجدد اطلاعات کاربری در هدر (نام، کد ملی، شماره دانشجویی)
     $('#user-info-display').html(`
-        <span class="badge bg-light text-dark border me-1 mb-1"><i class="fas fa-user text-primary me-1"></i> ${userInfoName}</span>
-        ${userInfoD ? `<span class="badge bg-light text-dark border me-1 mb-1">${userInfoD}</span>` : ''}
-        ${userInfoE ? `<span class="badge bg-light text-dark border mb-1">${userInfoE}</span>` : ''}
+        <div class="d-flex flex-wrap gap-2 justify-content-center mt-2">
+            <span class="badge bg-primary px-3 py-2 fs-6 shadow-sm"><i class="fas fa-user ms-1"></i> ${globalData['NAME']}</span>
+            <span class="badge bg-secondary px-3 py-2 fs-6 shadow-sm"><i class="fas fa-id-card ms-1"></i> کد ملی: ${globalData['NATIONAL_ID']}</span>
+            <span class="badge bg-info text-dark px-3 py-2 fs-6 shadow-sm"><i class="fas fa-id-badge ms-1"></i> شماره دانشجویی: ${globalData['STUDENT_ID']}</span>
+        </div>
     `);
 
     isNormalized = false;
@@ -150,7 +141,7 @@ function processUserRecord(userRecord) {
     processAndRender();
 }
 
-// عملکرد دکمه ذخیره JSON (حفظ شد بر اساس درخواست شما)
+// عملکرد دکمه ذخیره JSON
 $('#btn-export-json').click(function() {
     if (!globalData) return;
     const jsonString = JSON.stringify(globalData, null, 2);
@@ -158,7 +149,7 @@ $('#btn-export-json').click(function() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const userName = globalData['C'] || 'user';
+    const userName = globalData['NAME'] || 'user';
     a.download = `${userName}_data.json`;
     document.body.appendChild(a);
     a.click();
@@ -232,7 +223,6 @@ function processAndRender() {
     let banner = $('#validation-banner');
     let vPercent = (v * 100).toFixed(1);
     
-    // اصلاح: داشبورد دیگر fadeOut نمی‌شود و نتایج همیشه رندر می‌شوند
     if (validityStatus === "INVALID") {
         banner.removeClass('alert-success alert-warning').addClass('alert-danger')
               .html(`<i class="fas fa-times-circle me-2 fs-4"></i> <div><strong>پاسخنامه نامعتبر:</strong> به دلیل وجود تناقضات بالا و عدم دقت در پاسخ به سوالات کنترل، نتایج قابل اتکا نیستند اما داشبورد نمایش داده می‌شود.</div>`);
@@ -247,7 +237,6 @@ function processAndRender() {
         $('#dashboard-content').fadeIn();
     }
 
-    // نمودار ضریب اعتبار
     createOrUpdateChart('#validityGaugeChart', {
         series: [parseFloat(vPercent)],
         chart: { type: 'radialBar', height: 180, fontFamily: 'Vazirmatn' },
@@ -263,7 +252,6 @@ function processAndRender() {
         colors: [validityStatus === "VALID" ? '#1cc88a' : (validityStatus === "SUSPICIOUS" ? '#f6c23e' : '#e74a3b')]
     });
 
-    // نمودار شاخص پایایی و ثبات
     let reliabilityVal = s_att === 0 ? 0.0 : ((s_rev + s_dup) / 2.0) * 100;
     createOrUpdateChart('#reliabilityGaugeChart', {
         series: [parseFloat(reliabilityVal.toFixed(1))],
@@ -309,11 +297,9 @@ function processAndRender() {
         let vals = Object.values(roleRawPercents);
         let rMean = vals.reduce((a, b) => a + b, 0) / vals.length;
         let rStd = Math.sqrt(vals.reduce((a, b) => a + Math.pow(b - rMean, 2), 0) / vals.length) || 1;
-        
         let zScores = {};
         for (let role in roleRawPercents) zScores[role] = (roleRawPercents[role] - rMean) / rStd;
         let minZ = Math.min(...Object.values(zScores));
-        
         let shiftedZ = {};
         for (let role in zScores) shiftedZ[role] = zScores[role] - minZ;
         let maxZ = Math.max(...Object.values(shiftedZ), 0.0001);
@@ -323,7 +309,6 @@ function processAndRender() {
     }
 
     let sortedRoles = Object.keys(normalizedRoleScores).sort((a, b) => normalizedRoleScores[b] - normalizedRoleScores[a]);
-    let globalTopRole = sortedRoles[0] || "R-EXE";
     let roleLabelsArr = sortedRoles.map(role => typeof LABELS !== 'undefined' && LABELS["ROLE_" + role] ? LABELS["ROLE_" + role] : role);
     let roleValuesArr = sortedRoles.map(role => parseFloat(normalizedRoleScores[role].toFixed(1)));
 
@@ -336,44 +321,22 @@ function processAndRender() {
         $('#sec-role').text(typeof LABELS !== 'undefined' && LABELS["ROLE_" + secRole] ? LABELS["ROLE_" + secRole] : secRole);
         $('#role-gap').text(scoreGap.toFixed(1) + " امتیاز");
 
-        // نمودار رادار
         createOrUpdateChart('#roleRadarChart', {
-            series: [{ name: isNormalized ? 'امتیاز نقش (Z-Score)' : 'امتیاز نقش (۰-۱۰۰)', data: [ normalizedRoleScores["R-EXE"].toFixed(1), normalizedRoleScores["R-SUP"].toFixed(1), normalizedRoleScores["R-CRE"].toFixed(1), normalizedRoleScores["R-INTRA"].toFixed(1) ] }],
+            series: [{ name: isNormalized ? 'Z-Score' : 'Percentage', data: [ normalizedRoleScores["R-EXE"].toFixed(1), normalizedRoleScores["R-SUP"].toFixed(1), normalizedRoleScores["R-CRE"].toFixed(1), normalizedRoleScores["R-INTRA"].toFixed(1) ] }],
             chart: { type: 'radar', height: 350, fontFamily: 'Vazirmatn' },
             labels: ['اجرایی', 'پشتیبانی', 'خلاق', 'درون‌فردی'],
             stroke: { width: 2 }, fill: { opacity: 0.2 }, colors: ['#4e73df'],
             yaxis: { show: false, min: 0, max: 100 }
         });
 
-        // نمودار میله‌ای
         createOrUpdateChart('#roleBarChart', {
-            series: [{ name: isNormalized ? 'امتیاز Z-Score نسبی' : 'امتیاز (درصد)', data: roleValuesArr }],
+            series: [{ name: 'Score', data: roleValuesArr }],
             chart: { type: 'bar', height: 350, fontFamily: 'Vazirmatn' },
             plotOptions: { bar: { borderRadius: 4, horizontal: false, distributed: true } },
             colors: ['#1cc88a', '#f6c23e', '#4e73df', '#e74a3b'],
             dataLabels: { enabled: true, formatter: function (val) { return val + "%" } },
             xaxis: { categories: roleLabelsArr },
             legend: { show: false }, yaxis: { min: 0, max: 100 }
-        });
-        
-        // دونات
-        createOrUpdateChart('#roleDonutChart', {
-            series: roleValuesArr,
-            chart: { type: 'donut', height: 350, fontFamily: 'Vazirmatn' },
-            labels: roleLabelsArr,
-            colors: ['#1cc88a', '#f6c23e', '#4e73df', '#e74a3b'],
-            dataLabels: { enabled: true, formatter: function (val) { return val.toFixed(1) + "%" } },
-            legend: { position: 'bottom' }
-        });
-
-        // مساحت قطبی
-        createOrUpdateChart('#rolePolarChart', {
-            series: roleValuesArr,
-            chart: { type: 'polarArea', height: 350, fontFamily: 'Vazirmatn' },
-            labels: roleLabelsArr,
-            colors: ['#1cc88a', '#f6c23e', '#4e73df', '#e74a3b'],
-            fill: { opacity: 0.8 },
-            legend: { position: 'bottom' }
         });
     }
 
